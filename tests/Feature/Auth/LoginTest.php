@@ -159,4 +159,34 @@ class LoginTest extends TestCase
     {
         $this->get('/dashboard')->assertRedirect(route('login'));
     }
+
+    public function test_tombol_keluar_tersedia_di_dashboard(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Keluar');
+    }
+
+    public function test_pengguna_dapat_logout(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/logout');
+
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('status', 'Anda telah keluar.');
+
+        $this->assertGuest();
+        $this->get('/dashboard')->assertRedirect(route('login'));
+    }
+
+    public function test_tamu_diarahkan_ke_login_saat_mencoba_logout(): void
+    {
+        $this->post('/logout')->assertRedirect(route('login'));
+
+        $this->assertGuest();
+    }
 }

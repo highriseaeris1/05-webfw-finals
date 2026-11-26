@@ -19,6 +19,12 @@
                 <h1 class="text-lg font-semibold text-[#1B2430]">Masuk panel staf</h1>
                 <p class="mt-1 text-sm text-[#6B7685]">Khusus Admin dan Pengawas Fasilkom UNSIKA.</p>
 
+                @if (session('status'))
+                    <div class="mt-4 rounded-[10px] border border-[#B8E0C8] bg-[#E3F4EA] px-3 py-2 text-sm text-[#1E7B45]" role="status">
+                        {{ session('status') }}
+                    </div>
+                @endif
+
                 @error('auth')
                     <div class="mt-4 rounded-[10px] border border-[#F3C1C1] bg-[#FDE7E7] px-3 py-2 text-sm text-[#B3261E]" role="alert">
                         {{ $message }}
