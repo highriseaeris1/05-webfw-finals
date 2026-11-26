@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\PasswordController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,5 +15,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::view('/dashboard', 'dashboard.index')->name('dashboard');
+    Route::get('/kata-sandi', [PasswordController::class, 'edit'])->name('password.edit');
+    Route::put('/kata-sandi', [PasswordController::class, 'update'])->name('password.update');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });

@@ -15,17 +15,25 @@
                 Halaman ini sementara untuk memastikan login berhasil. Menu dan dashboard per peran akan dibuat pada tahap berikutnya.
             </div>
 
-            <div class="mt-5 flex items-center justify-between border-t border-[#DDE3EC] pt-4">
-                <p class="text-xs text-[#6B7685]">Sesi berakhir setelah Anda keluar.</p>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button
-                        type="submit"
-                        class="flex h-[36px] items-center justify-center rounded-[8px] border border-[#DDE3EC] bg-white px-3 text-xs font-medium text-[#1F3A5F] transition hover:border-[#1F3A5F] hover:bg-[#F4F6FA] focus:outline-none focus:ring-2 focus:ring-[#1F3A5F]"
+            <div class="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[#DDE3EC] pt-4">
+                <p class="text-xs text-[#6B7685]">Kelola akun staf Anda.</p>
+                <div class="flex items-center gap-2">
+                    <a
+                        href="{{ route('password.edit') }}"
+                        class="flex h-[36px] items-center justify-center rounded-[8px] border border-[#DDE3EC] bg-white px-3 text-xs font-medium text-[#1F3A5F] transition hover:border-[#1F3A5F] hover:bg-[#F4F6FA]"
                     >
-                        Keluar
-                    </button>
-                </form>
+                        Ubah kata sandi
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="flex h-[36px] items-center justify-center rounded-[8px] border border-[#DDE3EC] bg-white px-3 text-xs font-medium text-[#1F3A5F] transition hover:border-[#1F3A5F] hover:bg-[#F4F6FA] focus:outline-none focus:ring-2 focus:ring-[#1F3A5F]"
+                        >
+                            Keluar
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </main>
