@@ -16,6 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureUserHasRole::class,
         ]);
+
+        // Pengguna yang sudah login dan membuka halaman tamu diarahkan ke dashboard perannya.
+        $middleware->redirectUsersTo(function (Request $request): string {
+            return $request->user()->isAdmin()
+                ? route('admin.dashboard')
+                : route('pengawas.dashboard');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

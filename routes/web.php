@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -14,7 +15,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::view('/dashboard', 'dashboard.index')->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/kata-sandi', [PasswordController::class, 'edit'])->name('password.edit');
     Route::put('/kata-sandi', [PasswordController::class, 'update'])->name('password.update');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
@@ -25,7 +26,7 @@ Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
-        Route::view('/dashboard', 'dashboard.index')->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
     });
 
 // Area khusus Pengawas; peran lain mendapat 403 dan tamu diarahkan ke login.
@@ -33,5 +34,5 @@ Route::middleware(['auth', 'role:pengawas'])
     ->prefix('pengawas')
     ->name('pengawas.')
     ->group(function () {
-        Route::view('/dashboard', 'dashboard.index')->name('dashboard');
+        Route::get('/dashboard', [DashboardController::class, 'pengawas'])->name('dashboard');
     });

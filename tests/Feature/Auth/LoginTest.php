@@ -43,7 +43,7 @@ class LoginTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('admin.dashboard'));
         $this->assertAuthenticatedAs($user);
     }
 
@@ -59,7 +59,7 @@ class LoginTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('pengawas.dashboard'));
         $this->assertAuthenticatedAs($user);
     }
 
@@ -141,7 +141,7 @@ class LoginTest extends TestCase
         $this->post('/login', [
             'identifier' => 'admin@contoh.id',
             'password' => 'password',
-        ])->assertRedirect(route('dashboard'));
+        ])->assertRedirect(route('admin.dashboard'));
 
         $this->assertNotSame($sessionIdSebelumLogin, session()->getId());
     }
@@ -152,7 +152,7 @@ class LoginTest extends TestCase
 
         $this->actingAs($user)
             ->get('/login')
-            ->assertRedirect(route('dashboard'));
+            ->assertRedirect(route('pengawas.dashboard'));
     }
 
     public function test_tamu_diarahkan_ke_halaman_login_saat_membuka_dashboard(): void
@@ -165,7 +165,7 @@ class LoginTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-            ->get('/dashboard')
+            ->get(route('pengawas.dashboard'))
             ->assertOk()
             ->assertSee('Keluar');
     }

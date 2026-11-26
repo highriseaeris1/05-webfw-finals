@@ -29,7 +29,12 @@ class LoginController extends Controller
         // Cegah session fixation dengan mengganti ID sesi setelah login berhasil.
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        // Setiap peran memiliki dashboard sendiri setelah login.
+        $dashboard = $request->user()->isAdmin()
+            ? route('admin.dashboard')
+            : route('pengawas.dashboard');
+
+        return redirect()->intended($dashboard);
     }
 
     /**

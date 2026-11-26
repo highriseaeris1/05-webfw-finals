@@ -139,7 +139,7 @@ class PasswordUpdateTest extends TestCase
         $this->post('/login', [
             'identifier' => 'admin@contoh.id',
             'password' => 'kata-sandi-baru',
-        ])->assertRedirect(route('dashboard'));
+        ])->assertRedirect(route('pengawas.dashboard'));
 
         $this->assertAuthenticatedAs($user->fresh());
     }
