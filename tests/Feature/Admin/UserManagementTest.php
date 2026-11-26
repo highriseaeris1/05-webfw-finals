@@ -668,4 +668,333 @@ class UserManagementTest extends TestCase
             'is_active' => true,
         ]);
     }
+
+    public function test_admin_dapat_membuka_daftar_pengguna(): void
+    {
+        $admin = User::factory()->admin()->create([
+            'name' => 'Admin Utama',
+            'username' => 'admin.utama',
+            'email' => 'admin.utama@contoh.id',
+        ]);
+        $pengawas = User::factory()->pengawas()->create([
+            'name' => 'Pengawas Satu',
+            'username' => 'pengawas.satu',
+            'email' => 'pengawas.satu@contoh.id',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertSee('Kelola pengguna')
+            ->assertSee('Nama')
+            ->assertSee('Username')
+            ->assertSee('Email')
+            ->assertSee('Peran')
+            ->assertSee('Status')
+            ->assertSee('Aksi')
+            ->assertSee('Admin Utama')
+            ->assertSee('admin.utama')
+            ->assertSee('admin.utama@contoh.id')
+            ->assertSee('Pengawas Satu')
+            ->assertSee('pengawas.satu')
+            ->assertSee('pengawas.satu@contoh.id')
+            ->assertSee('2 akun terdaftar');
+    }
+
+    public function test_tamu_diarahkan_ke_login_dari_daftar_pengguna(): void
+    {
+        $this->get(route('admin.users.index'))->assertRedirect(route('login'));
+    }
+
+    public function test_pengawas_tidak_dapat_membuka_daftar_pengguna(): void
+    {
+        $pengawas = User::factory()->pengawas()->create();
+
+        $this->actingAs($pengawas)
+            ->get(route('admin.users.index'))
+            ->assertForbidden();
+    }
+
+    public function test_daftar_pengguna_menampilkan_status_aktif_dan_nonaktif(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        User::factory()->pengawas()->create(['name' => 'Pengguna Aktif']);
+        User::factory()->pengawas()->inactive()->create(['name' => 'Pengguna Nonaktif']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertSeeInOrder(['Pengguna Aktif', 'Aktif', 'Nonaktifkan'])
+            ->assertSeeInOrder(['Pengguna Nonaktif', 'Nonaktif', 'Aktifkan']);
+    }
+
+    public function test_username_kosong_ditampilkan_dengan_tanda_dash(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        User::factory()->pengawas()->create([
+            'name' => 'Tanpa Username',
+            'username' => null,
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertSeeInOrder(['Tanpa Username', '—']);
+    }
+
+    public function test_daftar_pengguna_diurutkan_berdasarkan_nama(): void
+    {
+        $admin = User::factory()->admin()->create(['name' => 'Admin Urut']);
+
+        User::factory()->pengawas()->create(['name' => 'Zaki']);
+        User::factory()->pengawas()->create(['name' => 'Ahmad']);
+        User::factory()->pengawas()->create(['name' => 'Budi']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertSeeInOrder(['Admin Urut', 'Ahmad', 'Budi', 'Zaki']);
+    }
+
+    public function test_pencarian_pengguna_berdasarkan_nama_username_dan_email(): void
+    {
+        $admin = User::factory()->admin()->create([
+            'name' => 'Admin Pencarian',
+            'username' => 'admin.pencarian',
+            'email' => 'admin.pencarian@contoh.id',
+        ]);
+
+        User::factory()->pengawas()->create([
+            'name' => 'Budi Santoso',
+            'username' => 'budi.santoso',
+            'email' => 'budi.santoso@contoh.id',
+        ]);
+        User::factory()->pengawas()->create([
+            'name' => 'Siti Aminah',
+            'username' => 'siti.aminah',
+            'email' => 'siti.aminah@contoh.id',
+        ]);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index', ['q' => 'Budi']))
+            ->assertOk()
+            ->assertSee('Budi Santoso')
+            ->assertDontSee('Siti Aminah')
+            ->assertSee('1 hasil pencarian untuk "Budi".', false);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index', ['q' => 'budi.santoso']))
+            ->assertOk()
+            ->assertSee('Budi Santoso')
+            ->assertDontSee('Siti Aminah');
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index', ['q' => 'budi.santoso@contoh.id']))
+            ->assertOk()
+            ->assertSee('Budi Santoso')
+            ->assertDontSee('Siti Aminah');
+    }
+
+    public function test_pencarian_tanpa_hasil_menampilkan_pesan_kosong(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index', ['q' => 'tidakada']))
+            ->assertOk()
+            ->assertSee('Tidak ada pengguna yang cocok dengan pencarian.');
+    }
+
+    public function test_pencarian_terbawa_saat_membuka_halaman_berikutnya(): void
+    {
+        $admin = User::factory()->admin()->create(['name' => 'Admin Paginasi']);
+
+        foreach (range(1, 12) as $nomor) {
+            User::factory()->pengawas()->create([
+                'name' => sprintf('Pengguna Uji %02d', $nomor),
+            ]);
+        }
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index', ['q' => 'Pengguna Uji']))
+            ->assertOk()
+            ->assertSee('Pengguna Uji 01')
+            ->assertSee('Pengguna Uji 10')
+            ->assertDontSee('Pengguna Uji 11')
+            ->assertSee('q=Pengguna%20Uji', false);
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index', ['q' => 'Pengguna Uji', 'page' => 2]))
+            ->assertOk()
+            ->assertSee('Pengguna Uji 11')
+            ->assertSee('Pengguna Uji 12')
+            ->assertDontSee('Pengguna Uji 01');
+    }
+
+    public function test_email_tidak_valid_ditolak_saat_tambah_pengguna(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.users.create'))
+            ->post(route('admin.users.store'), $this->dataAkun([
+                'email' => 'bukan-email',
+            ]));
+
+        $response->assertRedirect(route('admin.users.create'));
+        $response->assertSessionHasErrors([
+            'email' => 'Format email tidak valid.',
+        ]);
+
+        $this->assertDatabaseMissing('users', ['username' => 'pengawas.baru']);
+    }
+
+    public function test_batas_panjang_nama_dan_username_ditolak_saat_tambah_pengguna(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.users.create'))
+            ->post(route('admin.users.store'), $this->dataAkun([
+                'name' => str_repeat('a', 256),
+                'username' => str_repeat('b', 256),
+            ]));
+
+        $response->assertRedirect(route('admin.users.create'));
+        $response->assertSessionHasErrors([
+            'name' => 'Nama lengkap maksimal 255 karakter.',
+            'username' => 'Username maksimal 255 karakter.',
+        ]);
+
+        $this->assertDatabaseMissing('users', ['username' => 'pengawas.baru']);
+    }
+
+    public function test_spasi_di_awal_dan_akhir_input_dihilangkan_saat_tambah(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->post(route('admin.users.store'), $this->dataAkun([
+                'name' => '  Pengguna Spasi  ',
+                'username' => '  pengguna.spasi  ',
+                'email' => '  pengguna.spasi@contoh.id  ',
+            ]))
+            ->assertRedirect(route('admin.users.index'));
+
+        $this->assertDatabaseHas('users', [
+            'name' => 'Pengguna Spasi',
+            'username' => 'pengguna.spasi',
+            'email' => 'pengguna.spasi@contoh.id',
+        ]);
+    }
+
+    public function test_konfirmasi_kata_sandi_wajib_diisi_saat_tambah(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $data = $this->dataAkun();
+        unset($data['password_confirmation']);
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.users.create'))
+            ->post(route('admin.users.store'), $data);
+
+        $response->assertRedirect(route('admin.users.create'));
+        $response->assertSessionHasErrors([
+            'password' => 'Konfirmasi kata sandi tidak cocok.',
+        ]);
+
+        $this->assertDatabaseMissing('users', ['username' => 'pengawas.baru']);
+    }
+
+    public function test_email_tidak_valid_ditolak_saat_edit(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $target = User::factory()->pengawas()->create();
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.users.edit', $target))
+            ->put(route('admin.users.update', $target), $this->dataPerubahan([
+                'email' => 'bukan-email',
+            ]));
+
+        $response->assertRedirect(route('admin.users.edit', $target));
+        $response->assertSessionHasErrors([
+            'email' => 'Format email tidak valid.',
+        ]);
+
+        $this->assertDatabaseHas('users', [
+            'id' => $target->id,
+            'email' => $target->email,
+        ]);
+    }
+
+    public function test_batas_panjang_nama_dan_username_ditolak_saat_edit(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $target = User::factory()->pengawas()->create();
+
+        $response = $this->actingAs($admin)
+            ->from(route('admin.users.edit', $target))
+            ->put(route('admin.users.update', $target), $this->dataPerubahan([
+                'name' => str_repeat('a', 256),
+                'username' => str_repeat('b', 256),
+            ]));
+
+        $response->assertRedirect(route('admin.users.edit', $target));
+        $response->assertSessionHasErrors([
+            'name' => 'Nama lengkap maksimal 255 karakter.',
+            'username' => 'Username maksimal 255 karakter.',
+        ]);
+
+        $this->assertDatabaseHas('users', [
+            'id' => $target->id,
+            'username' => $target->username,
+        ]);
+    }
+
+    public function test_spasi_di_awal_dan_akhir_input_dihilangkan_saat_edit(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $target = User::factory()->pengawas()->create();
+
+        $this->actingAs($admin)
+            ->put(route('admin.users.update', $target), $this->dataPerubahan([
+                'name' => '  Nama Spasi  ',
+                'username' => '  username.spasi  ',
+                'email' => '  email.spasi@contoh.id  ',
+            ]))
+            ->assertRedirect(route('admin.users.index'));
+
+        $this->assertDatabaseHas('users', [
+            'id' => $target->id,
+            'name' => 'Nama Spasi',
+            'username' => 'username.spasi',
+            'email' => 'email.spasi@contoh.id',
+        ]);
+    }
+
+    public function test_akun_yang_diaktifkan_kembali_dapat_login(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $target = User::factory()->pengawas()->inactive()->create([
+            'username' => 'pengawas.kembali',
+            'email' => 'pengawas.kembali@contoh.id',
+        ]);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.toggle-status', $target))
+            ->assertRedirect(route('admin.users.index'));
+
+        $this->post('/logout')->assertRedirect(route('login'));
+
+        $this->post('/login', [
+            'identifier' => 'pengawas.kembali',
+            'password' => 'password',
+        ])->assertRedirect(route('pengawas.dashboard'));
+
+        $this->assertAuthenticatedAs($target->fresh());
+    }
 }

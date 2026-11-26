@@ -89,4 +89,22 @@ class AccessControlTest extends TestCase
             ->assertSee('Akses ditolak')
             ->assertSee('Kembali ke panel');
     }
+
+    public function test_menu_panel_sesuai_peran_yang_login(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $pengawas = User::factory()->pengawas()->create();
+
+        $this->actingAs($admin)
+            ->get(route('admin.dashboard'))
+            ->assertOk()
+            ->assertSee(route('admin.users.index'), false)
+            ->assertDontSee('Pemusnahan');
+
+        $this->actingAs($pengawas)
+            ->get(route('pengawas.dashboard'))
+            ->assertOk()
+            ->assertSee('Pemusnahan')
+            ->assertDontSee(route('admin.users.index'), false);
+    }
 }

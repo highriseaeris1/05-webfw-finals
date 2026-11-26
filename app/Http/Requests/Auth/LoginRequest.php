@@ -79,11 +79,24 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $identifier = (string) $this->input('identifier');
+        $password = (string) $this->input('password');
 
-        // Email mengandung "@"; selain itu diperlakukan sebagai username.
-        $field = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        // Coba kolom yang paling mungkin lebih dulu, lalu kolom lainnya agar username
+        // yang berbentuk email maupun email domain lokal tetap dapat dipakai untuk login.
+        $fields = filter_var($identifier, FILTER_VALIDATE_EMAIL)
+            ? ['email', 'username']
+            : ['username', 'email'];
 
-        if (! Auth::attempt([$field => $identifier, 'password' => (string) $this->input('password')])) {
+        $berhasil = false;
+
+        foreach ($fields as $field) {
+            if (Auth::attempt([$field => $identifier, 'password' => $password])) {
+                $berhasil = true;
+                break;
+            }
+        }
+
+        if (! $berhasil) {
             throw ValidationException::withMessages([
                 'auth' => 'Email/username atau kata sandi salah.',
             ]);

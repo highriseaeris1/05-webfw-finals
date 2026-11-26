@@ -63,6 +63,100 @@ class LoginTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_admin_dapat_login_menggunakan_username(): void
+    {
+        $user = User::factory()->admin()->create([
+            'email' => 'admin.tu@contoh.id',
+            'username' => 'admin.tu',
+        ]);
+
+        $response = $this->post('/login', [
+            'identifier' => 'admin.tu',
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_pengawas_dapat_login_menggunakan_email(): void
+    {
+        $user = User::factory()->pengawas()->create([
+            'email' => 'pengawas@contoh.id',
+            'username' => 'pengawas.fasilkom',
+        ]);
+
+        $response = $this->post('/login', [
+            'identifier' => 'pengawas@contoh.id',
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect(route('pengawas.dashboard'));
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_akun_nonaktif_tidak_dapat_login_menggunakan_username(): void
+    {
+        User::factory()->pengawas()->inactive()->create([
+            'email' => 'nonaktif@contoh.id',
+            'username' => 'nonaktif.user',
+        ]);
+
+        $response = $this->from('/login')->post('/login', [
+            'identifier' => 'nonaktif.user',
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect('/login');
+        $response->assertSessionHasErrors('auth');
+        $this->assertGuest();
+    }
+
+    public function test_email_domain_lokal_tetap_dapat_digunakan_untuk_login(): void
+    {
+        $user = User::factory()->admin()->create([
+            'email' => 'admin@localhost',
+            'username' => 'admin.lokal',
+        ]);
+
+        $this->post('/login', [
+            'identifier' => 'admin@localhost',
+            'password' => 'password',
+        ])->assertRedirect(route('admin.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_username_yang_mirip_email_tetap_dapat_digunakan_untuk_login(): void
+    {
+        $user = User::factory()->pengawas()->create([
+            'email' => 'pengawas.lain@contoh.id',
+            'username' => 'pengawas@contoh.id',
+        ]);
+
+        $this->post('/login', [
+            'identifier' => 'pengawas@contoh.id',
+            'password' => 'password',
+        ])->assertRedirect(route('pengawas.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_identifier_dengan_spasi_di_awal_dan_akhir_tetap_dapat_login(): void
+    {
+        $user = User::factory()->pengawas()->create([
+            'email' => 'spasi@contoh.id',
+            'username' => 'spasi.user',
+        ]);
+
+        $this->post('/login', [
+            'identifier' => '  spasi.user  ',
+            'password' => 'password',
+        ])->assertRedirect(route('pengawas.dashboard'));
+
+        $this->assertAuthenticatedAs($user);
+    }
+
     public function test_akun_nonaktif_tidak_dapat_login(): void
     {
         User::factory()->admin()->inactive()->create([
@@ -187,6 +281,19 @@ class LoginTest extends TestCase
     {
         $this->post('/logout')->assertRedirect(route('login'));
 
+        $this->assertGuest();
+    }
+
+    public function test_setelah_logout_tidak_dapat_membuka_halaman_admin(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $this->actingAs($admin)
+            ->post('/logout')
+            ->assertRedirect(route('login'));
+
+        $this->get(route('admin.dashboard'))->assertRedirect(route('login'));
+        $this->get(route('admin.users.index'))->assertRedirect(route('login'));
         $this->assertGuest();
     }
 }

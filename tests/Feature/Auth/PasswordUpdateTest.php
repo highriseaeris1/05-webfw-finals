@@ -55,6 +55,42 @@ class PasswordUpdateTest extends TestCase
         $this->assertFalse(Hash::check('password', $user->password));
     }
 
+    public function test_kata_sandi_lama_wajib_diisi(): void
+    {
+        $user = $this->buatPengguna();
+
+        $response = $this->actingAs($user)->from('/kata-sandi')->put('/kata-sandi', [
+            'current_password' => '',
+            'password' => 'kata-sandi-baru',
+            'password_confirmation' => 'kata-sandi-baru',
+        ]);
+
+        $response->assertRedirect('/kata-sandi');
+        $response->assertSessionHasErrors([
+            'current_password' => 'Kata sandi lama wajib diisi.',
+        ]);
+
+        $this->assertTrue(Hash::check('password', $user->fresh()->password));
+    }
+
+    public function test_kata_sandi_baru_wajib_diisi(): void
+    {
+        $user = $this->buatPengguna();
+
+        $response = $this->actingAs($user)->from('/kata-sandi')->put('/kata-sandi', [
+            'current_password' => 'password',
+            'password' => '',
+            'password_confirmation' => '',
+        ]);
+
+        $response->assertRedirect('/kata-sandi');
+        $response->assertSessionHasErrors([
+            'password' => 'Kata sandi baru wajib diisi.',
+        ]);
+
+        $this->assertTrue(Hash::check('password', $user->fresh()->password));
+    }
+
     public function test_kata_sandi_lama_salah_ditolak(): void
     {
         $user = $this->buatPengguna();
