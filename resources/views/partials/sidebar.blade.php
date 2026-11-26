@@ -10,7 +10,7 @@
             ['label' => 'Kategori'],
             ['label' => 'Umur barang'],
             ['label' => 'Riwayat'],
-            ['label' => 'Pengguna'],
+            ['label' => 'Pengguna', 'route' => 'admin.users.index'],
         ]
         : [
             ['label' => 'Dashboard', 'route' => 'pengawas.dashboard'],
