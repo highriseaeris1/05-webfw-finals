@@ -19,3 +19,19 @@ Route::middleware('auth')->group(function () {
     Route::put('/kata-sandi', [PasswordController::class, 'update'])->name('password.update');
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
+
+// Area khusus Admin; peran lain mendapat 403 dan tamu diarahkan ke login.
+Route::middleware(['auth', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::view('/dashboard', 'dashboard.index')->name('dashboard');
+    });
+
+// Area khusus Pengawas; peran lain mendapat 403 dan tamu diarahkan ke login.
+Route::middleware(['auth', 'role:pengawas'])
+    ->prefix('pengawas')
+    ->name('pengawas.')
+    ->group(function () {
+        Route::view('/dashboard', 'dashboard.index')->name('dashboard');
+    });
