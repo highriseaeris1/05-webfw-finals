@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
+use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,5 +69,34 @@ class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('status', 'Pengguna berhasil ditambahkan.');
+    }
+
+    /**
+     * Tampilkan formulir edit dengan data akun yang dipilih.
+     */
+    public function edit(User $user): View
+    {
+        return view('admin.users.edit', [
+            'user' => $user,
+            'roles' => UserRole::cases(),
+            'defaultRole' => $user->role->value,
+        ]);
+    }
+
+    /**
+     * Perbarui data akun tanpa mengubah kata sandi dan status aktif.
+     */
+    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    {
+        $user->update([
+            'name' => $request->validated('name'),
+            'username' => $request->validated('username'),
+            'email' => $request->validated('email'),
+            'role' => $request->validated('role'),
+        ]);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('status', 'Pengguna berhasil diperbarui.');
     }
 }

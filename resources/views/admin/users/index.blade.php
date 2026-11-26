@@ -82,12 +82,18 @@
                                     <x-badge variant="danger">Nonaktif</x-badge>
                                 @endif
                             </td>
-                            <td class="px-5 py-3.5 text-xs text-[#6B7685]">
-                                @if ($managedUser->is(auth()->user()))
-                                    Akun Anda
-                                @else
-                                    &mdash;
-                                @endif
+                            <td class="px-5 py-3.5">
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <a
+                                        href="{{ route('admin.users.edit', $managedUser) }}"
+                                        class="inline-flex h-[30px] items-center justify-center rounded-[8px] border border-[#DDE3EC] bg-white px-3 text-xs font-medium text-[#1F3A5F] transition hover:border-[#1F3A5F] hover:bg-[#F4F6FA] focus:outline-none focus:ring-2 focus:ring-[#1F3A5F]"
+                                    >
+                                        Edit
+                                    </a>
+                                    @if ($managedUser->is(auth()->user()))
+                                        <span class="text-xs text-[#6B7685]">Akun Anda</span>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -108,7 +114,7 @@
         @endif
 
         <p class="text-xs text-[#6B7685]">
-            Akun tidak dihapus agar riwayat tetap tersimpan. Fitur ubah dan aktif/nonaktifkan akun akan tersedia pada tahap berikutnya.
+            Akun tidak dihapus agar riwayat tetap tersimpan. Status aktif/nonaktif akan dikelola pada tahap berikutnya.
         </p>
     </div>
 @endsection
