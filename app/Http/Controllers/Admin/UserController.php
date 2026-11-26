@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreUserRequest;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -34,5 +38,35 @@ class UserController extends Controller
             'search' => $search,
             'totalPengguna' => User::count(),
         ]);
+    }
+
+    /**
+     * Tampilkan formulir tambah pengguna.
+     */
+    public function create(): View
+    {
+        return view('admin.users.create', [
+            'roles' => UserRole::cases(),
+            'defaultRole' => UserRole::Pengawas->value,
+        ]);
+    }
+
+    /**
+     * Simpan akun baru yang langsung berstatus aktif.
+     */
+    public function store(StoreUserRequest $request): RedirectResponse
+    {
+        User::create([
+            'name' => $request->validated('name'),
+            'username' => $request->validated('username'),
+            'email' => $request->validated('email'),
+            'password' => Hash::make($request->validated('password')),
+            'role' => $request->validated('role'),
+            'is_active' => true,
+        ]);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('status', 'Pengguna berhasil ditambahkan.');
     }
 }

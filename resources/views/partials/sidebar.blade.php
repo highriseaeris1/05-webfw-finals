@@ -10,7 +10,7 @@
             ['label' => 'Kategori'],
             ['label' => 'Umur barang'],
             ['label' => 'Riwayat'],
-            ['label' => 'Pengguna', 'route' => 'admin.users.index'],
+            ['label' => 'Pengguna', 'route' => 'admin.users.index', 'active' => 'admin.users.*'],
         ]
         : [
             ['label' => 'Dashboard', 'route' => 'pengawas.dashboard'],
@@ -34,7 +34,7 @@
     <nav class="flex flex-1 flex-col gap-1" aria-label="Menu {{ $isAdmin ? 'admin' : 'pengawas' }}">
         @foreach ($menu as $item)
             @php
-                $active = isset($item['route']) && request()->routeIs($item['route']);
+                $active = isset($item['route']) && request()->routeIs($item['active'] ?? $item['route']);
             @endphp
 
             @if (isset($item['route']))

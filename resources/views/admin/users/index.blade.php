@@ -16,14 +16,12 @@
                 </p>
             </div>
 
-            <button
-                type="button"
-                disabled
-                title="Fitur tambah pengguna akan tersedia pada tahap berikutnya"
-                class="inline-flex h-[41px] cursor-not-allowed items-center justify-center rounded-[10px] bg-[#1F3A5F] px-4 text-sm font-medium text-white opacity-60"
+            <a
+                href="{{ route('admin.users.create') }}"
+                class="inline-flex h-[41px] items-center justify-center rounded-[10px] bg-[#1F3A5F] px-4 text-sm font-medium text-white transition hover:bg-[#2C4A73] focus:outline-none focus:ring-2 focus:ring-[#1F3A5F]"
             >
                 Tambah Pengguna
-            </button>
+            </a>
         </header>
 
         <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-col gap-3 sm:flex-row sm:items-center">
