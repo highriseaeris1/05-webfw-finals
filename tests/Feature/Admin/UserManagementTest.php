@@ -514,4 +514,158 @@ class UserManagementTest extends TestCase
             'username' => $target->username,
         ]);
     }
+
+    public function test_tombol_status_dan_konfirmasi_tersedia_di_daftar_pengguna(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $aktif = User::factory()->pengawas()->create();
+        $nonaktif = User::factory()->pengawas()->inactive()->create();
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertSee('Nonaktifkan')
+            ->assertSee('Aktifkan')
+            ->assertSee("return confirm('Nonaktifkan akun ini?')", false)
+            ->assertSee("return confirm('Aktifkan akun ini?')", false)
+            ->assertSee(route('admin.users.toggle-status', $aktif), false)
+            ->assertSee(route('admin.users.toggle-status', $nonaktif), false)
+            ->assertDontSee(route('admin.users.toggle-status', $admin), false);
+    }
+
+    public function test_admin_dapat_menonaktifkan_pengguna_aktif(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $target = User::factory()->pengawas()->create();
+
+        $response = $this->actingAs($admin)
+            ->patch(route('admin.users.toggle-status', $target));
+
+        $response->assertRedirect(route('admin.users.index'));
+        $response->assertSessionHas('status', 'Status akun berhasil diperbarui.');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $target->id,
+            'is_active' => false,
+        ]);
+        $this->assertDatabaseCount('users', 2);
+
+        $this->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertSee('Status akun berhasil diperbarui.');
+    }
+
+    public function test_admin_dapat_mengaktifkan_pengguna_nonaktif(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $target = User::factory()->pengawas()->inactive()->create();
+
+        $response = $this->actingAs($admin)
+            ->patch(route('admin.users.toggle-status', $target));
+
+        $response->assertRedirect(route('admin.users.index'));
+        $response->assertSessionHas('status', 'Status akun berhasil diperbarui.');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $target->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_admin_tidak_dapat_menonaktifkan_akunnya_sendiri(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin)
+            ->patch(route('admin.users.toggle-status', $admin));
+
+        $response->assertRedirect(route('admin.users.index'));
+        $response->assertSessionHas('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $admin->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_admin_terakhir_yang_aktif_tidak_dapat_dinonaktifkan(): void
+    {
+        $adminA = User::factory()->admin()->create();
+        $adminB = User::factory()->admin()->create();
+
+        $this->actingAs($adminA)
+            ->patch(route('admin.users.toggle-status', $adminB))
+            ->assertRedirect(route('admin.users.index'))
+            ->assertSessionHas('status', 'Status akun berhasil diperbarui.');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $adminB->id,
+            'is_active' => false,
+        ]);
+
+        // Sesi Admin B yang sudah nonaktif tetap tidak boleh menonaktifkan satu-satunya Admin aktif.
+        $response = $this->actingAs($adminB)
+            ->patch(route('admin.users.toggle-status', $adminA));
+
+        $response->assertRedirect(route('admin.users.index'));
+        $response->assertSessionHas('error', 'Minimal harus ada satu Admin yang aktif.');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $adminA->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_akun_yang_baru_dinonaktifkan_tidak_dapat_login(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $target = User::factory()->pengawas()->create([
+            'username' => 'pengawas.aktif',
+            'email' => 'pengawas.aktif@contoh.id',
+        ]);
+
+        $this->actingAs($admin)
+            ->patch(route('admin.users.toggle-status', $target))
+            ->assertRedirect(route('admin.users.index'));
+
+        $this->post('/logout')->assertRedirect(route('login'));
+
+        $response = $this->from('/login')->post('/login', [
+            'identifier' => 'pengawas.aktif',
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect('/login');
+        $response->assertSessionHasErrors('auth');
+        $this->assertGuest();
+    }
+
+    public function test_tamu_tidak_dapat_mengubah_status_pengguna(): void
+    {
+        $target = User::factory()->pengawas()->create();
+
+        $this->patch(route('admin.users.toggle-status', $target))
+            ->assertRedirect(route('login'));
+
+        $this->assertGuest();
+        $this->assertDatabaseHas('users', [
+            'id' => $target->id,
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_pengawas_tidak_dapat_mengubah_status_pengguna(): void
+    {
+        $pengawas = User::factory()->pengawas()->create();
+        $target = User::factory()->pengawas()->create();
+
+        $this->actingAs($pengawas)
+            ->patch(route('admin.users.toggle-status', $target))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $target->id,
+            'is_active' => true,
+        ]);
+    }
 }

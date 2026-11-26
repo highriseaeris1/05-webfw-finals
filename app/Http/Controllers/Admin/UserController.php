@@ -9,6 +9,7 @@ use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
@@ -98,5 +99,58 @@ class UserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('status', 'Pengguna berhasil diperbarui.');
+    }
+
+    /**
+     * Aktifkan atau nonaktifkan akun tanpa menghapus data pengguna.
+     */
+    public function toggleStatus(Request $request, User $user): RedirectResponse
+    {
+        $actor = $request->user();
+
+        $hasil = DB::transaction(function () use ($actor, $user): string {
+            // Kunci semua Admin aktif dengan urutan tetap agar jumlah Admin aktif
+            // tetap konsisten ketika ada dua permintaan status secara bersamaan.
+            $adminAktif = User::query()
+                ->where('role', UserRole::Admin->value)
+                ->where('is_active', true)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            // Kunci baris target sebelum mengubah statusnya agar nilainya tidak berubah di tengah proses.
+            $target = User::query()
+                ->whereKey($user->getKey())
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($target->is_active && $target->is($actor)) {
+                return 'akun-sendiri';
+            }
+
+            if ($target->is_active && $target->role === UserRole::Admin && $adminAktif->count() <= 1) {
+                return 'admin-terakhir';
+            }
+
+            $target->update(['is_active' => ! $target->is_active]);
+
+            return 'berhasil';
+        });
+
+        if ($hasil === 'akun-sendiri') {
+            return redirect()
+                ->route('admin.users.index')
+                ->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
+        }
+
+        if ($hasil === 'admin-terakhir') {
+            return redirect()
+                ->route('admin.users.index')
+                ->with('error', 'Minimal harus ada satu Admin yang aktif.');
+        }
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('status', 'Status akun berhasil diperbarui.');
     }
 }

@@ -83,15 +83,52 @@
                                 @endif
                             </td>
                             <td class="px-5 py-3.5">
-                                <div class="flex flex-wrap items-center gap-3">
+                                <div class="flex flex-wrap items-center gap-2">
                                     <a
                                         href="{{ route('admin.users.edit', $managedUser) }}"
                                         class="inline-flex h-[30px] items-center justify-center rounded-[8px] border border-[#DDE3EC] bg-white px-3 text-xs font-medium text-[#1F3A5F] transition hover:border-[#1F3A5F] hover:bg-[#F4F6FA] focus:outline-none focus:ring-2 focus:ring-[#1F3A5F]"
                                     >
                                         Edit
                                     </a>
-                                    @if ($managedUser->is(auth()->user()))
-                                        <span class="text-xs text-[#6B7685]">Akun Anda</span>
+
+                                    @if ($managedUser->is_active)
+                                        @if ($managedUser->is(auth()->user()))
+                                            <span class="text-xs text-[#6B7685]">Akun Anda</span>
+                                        @else
+                                            <form
+                                                method="POST"
+                                                action="{{ route('admin.users.toggle-status', $managedUser) }}"
+                                                onsubmit="return confirm('Nonaktifkan akun ini?')"
+                                            >
+                                                @csrf
+                                                @method('PATCH')
+                                                <button
+                                                    type="submit"
+                                                    class="inline-flex h-[30px] items-center justify-center rounded-[8px] border border-[#F3C1C1] bg-[#FDE7E7] px-3 text-xs font-medium text-[#B3261E] transition hover:bg-[#FBD5D5] focus:outline-none focus:ring-2 focus:ring-[#B3261E]"
+                                                >
+                                                    Nonaktifkan
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <form
+                                            method="POST"
+                                            action="{{ route('admin.users.toggle-status', $managedUser) }}"
+                                            onsubmit="return confirm('Aktifkan akun ini?')"
+                                        >
+                                            @csrf
+                                            @method('PATCH')
+                                            <button
+                                                type="submit"
+                                                class="inline-flex h-[30px] items-center justify-center rounded-[8px] border border-[#B8E0C8] bg-[#E3F4EA] px-3 text-xs font-medium text-[#1E7B45] transition hover:bg-[#D3EFDE] focus:outline-none focus:ring-2 focus:ring-[#1E7B45]"
+                                            >
+                                                Aktifkan
+                                            </button>
+                                        </form>
+
+                                        @if ($managedUser->is(auth()->user()))
+                                            <span class="text-xs text-[#6B7685]">Akun Anda</span>
+                                        @endif
                                     @endif
                                 </div>
                             </td>
@@ -114,7 +151,7 @@
         @endif
 
         <p class="text-xs text-[#6B7685]">
-            Akun tidak dihapus agar riwayat tetap tersimpan. Status aktif/nonaktif akan dikelola pada tahap berikutnya.
+            Akun tidak dihapus agar riwayat tetap tersimpan. Status aktif/nonaktif hanya mengatur akses login akun.
         </p>
     </div>
 @endsection
