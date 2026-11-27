@@ -7,6 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class LaporanPermintaanService
 {
@@ -17,7 +18,12 @@ class LaporanPermintaanService
      */
     public function ringkasan(Carbon $tanggalAwal, Carbon $tanggalAkhir): array
     {
-        $jumlah = $this->query($tanggalAwal, $tanggalAkhir)
+        // Query builder dipakai agar nilai status tetap string mentah, bukan enum hasil cast model.
+        $jumlah = DB::table('permintaan')
+            ->whereBetween('tanggal_pengajuan', [
+                $tanggalAwal->copy()->startOfDay(),
+                $tanggalAkhir->copy()->endOfDay(),
+            ])
             ->selectRaw('status, COUNT(*) as jumlah')
             ->groupBy('status')
             ->pluck('jumlah', 'status');

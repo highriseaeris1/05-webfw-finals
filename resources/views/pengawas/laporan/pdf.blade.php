@@ -1,11 +1,4 @@
 @php
-    $statusLabel = [
-        'diajukan' => 'Diajukan',
-        'disetujui' => 'Disetujui',
-        'diambil' => 'Diambil',
-        'ditolak' => 'Ditolak',
-    ];
-
     $periode = \Illuminate\Support\Carbon::parse($tanggalAwal)->format('d/m/Y')
         .' s.d. '.
         \Illuminate\Support\Carbon::parse($tanggalAkhir)->format('d/m/Y');
@@ -172,7 +165,7 @@
                     <td>{{ $item->nama_pemohon }}</td>
                     <td>{{ $item->npm_nik }}</td>
                     <td>{{ $item->tanggal_pengajuan?->format('d/m/Y H:i') ?? '-' }}</td>
-                    <td>{{ $statusLabel[$item->status] ?? ucfirst($item->status) }}</td>
+                    <td>{{ $item->status->label() }}</td>
                     <td>{{ $item->pemroses?->name ?? '-' }}</td>
                     <td>{{ $item->tanggal_diproses?->format('d/m/Y H:i') ?? '-' }}</td>
                     <td>{{ $item->alasan_admin ?? '-' }}</td>
