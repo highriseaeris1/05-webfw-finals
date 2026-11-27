@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\StatusPermintaan;
 use Database\Factories\PermintaanFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -37,6 +38,7 @@ class Permintaan extends Model
     protected function casts(): array
     {
         return [
+            'status' => StatusPermintaan::class,
             'tanggal_pengajuan' => 'datetime',
             'tanggal_diproses' => 'datetime',
         ];
