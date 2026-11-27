@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\UserRole;
-use App\Models\User;
+use App\Services\DashboardSummaryService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly DashboardSummaryService $summaryService,
+    ) {}
+
     /**
      * Arahkan pengguna ke dashboard sesuai peran setelah login atau saat membuka /dashboard.
      */
@@ -21,15 +24,11 @@ class DashboardController extends Controller
     }
 
     /**
-     * Tampilkan ringkasan akun staf untuk Admin.
+     * Tampilkan ringkasan transaksi, data master, dan akun staf untuk Admin.
      */
     public function admin(): View
     {
-        return view('dashboard.admin', [
-            'totalPengguna' => User::count(),
-            'adminAktif' => User::active()->where('role', UserRole::Admin->value)->count(),
-            'pengawasAktif' => User::active()->where('role', UserRole::Pengawas->value)->count(),
-        ]);
+        return view('dashboard.admin', $this->summaryService->ringkasanAdmin());
     }
 
     /**
@@ -37,6 +36,6 @@ class DashboardController extends Controller
      */
     public function pengawas(): View
     {
-        return view('dashboard.pengawas');
+        return view('dashboard.pengawas', $this->summaryService->ringkasanPengawas());
     }
 }

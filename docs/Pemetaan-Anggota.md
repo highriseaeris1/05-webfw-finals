@@ -5,7 +5,7 @@ Dokumen ini memetakan kelima anggota tim ke tugas wajib masing-masing, lalu mera
 Sumber yang dipakai:
 
 1. **Prompt log** di `docs/prompt-logs/` (permintaan dan konteks yang ditulis anggota).
-2. **Riwayat commit** di seluruh branch dan **kode aktual** di `dev` pada `4d2dfe8` (27 November 2026).
+2. **Riwayat commit** di seluruh branch dan **kode aktual** di `dev` pada `4d2dfe8` serta working tree `devs/hideokojima` (27 November 2026, setelah implementasi W4 dan W8 yang menunggu commit & merge ke `dev`).
 3. **`Pembagian Tugas.pdf`** untuk penanggung jawab W1–W12.
 4. **`Checklist Spesifikasi Proyek.pdf`** dan `Checklist Spesifikasi.xlsx` untuk syarat minimum.
 5. **`Use Case dan Struktur Data.pdf`** untuk ERD, relasi, dan transisi status.
@@ -122,15 +122,16 @@ Alias author commit yang perlu diketahui saat menelusuri riwayat:
 
 | Area | Progres | Bukti |
 | :--- | :--- | :--- |
-| W4 | **Belum** — belum ada migration, model, CRUD, atau Form Request untuk `kategori` dan `barang`. `Checklist W4` meminta minimal dua tabel master dengan CRUD lengkap dan validasi Form Request. | Tidak ada commit W4 |
-| W8 | **Belum memenuhi** — kerangka dashboard dan menu Admin/Pengawas sudah ada dari pekerjaan Ratu pada W2-B, tetapi angka ringkasan sesuai peran belum ada. Dashboard Admin hanya menampilkan total pengguna, Admin aktif, dan Pengawas aktif; Dashboard Pengawas masih placeholder `—`/“Belum tersedia”. | `42c2e66` (kerangka), kode `DashboardController` |
+| W4 | **Selesai (di `devs/hideokojima`, belum di-merge ke `dev`)** — migration, model, factory, 4 Form Request validasi Bahasa Indonesia, controller CRUD dengan pencarian/filter/paginasi/`lockForUpdate()`, route `admin.kategori.*` & `admin.barang.*`, menu sidebar aktif, 6 view Blade, serta feature test `KategoriManagementTest` dan `BarangManagementTest`. | Migration `2026_11_27_000001..000002`, `KategoriController`, `BarangController`, `KategoriManagementTest`, `BarangManagementTest` |
+| W8 | **Selesai (di `devs/hideokojima`, belum di-merge ke `dev`)** — `DashboardSummaryService` + `DashboardController` menghitung angka nyata dari `barang`, `kategori`, `permintaan`, dan `users` untuk dashboard Admin (4 metrik utama, transaksi hari ini/per status, master & akun) maupun Pengawas (4 metrik utama, ringkasan permintaan, kandidat pemusnahan > 3 tahun, riwayat diambil terbaru). | `DashboardSummaryService`, `DashboardController`, `dashboard/admin.blade.php`, `dashboard/pengawas.blade.php`, `DashboardSummaryTest` |
 | Maintainer | **Berjalan** — merge PR #1 (`3f2642e`), integrasi Ratu + penyelesaian konflik rute (`960031e`), merge PR #3 (`608a65b`), PR #4 (`29b467a`), PR #5 (`4d2dfe8`), serta bantuan konflik rute (`05b1739`). | Riwayat merge di `dev` |
 
 **Catatan penting:**
-- `Checklist W8` meminta **ringkasan angka sesuai peran** (misalnya jumlah transaksi hari ini atau per status). Kerangka UI dan menu berbeda per peran adalah bagian dari W2; W8 baru selesai bila angka-angka itu benar-benar dihitung dari data.
-- Prioritas Hideo saat ini adalah W4 (`kategori` + `barang`) karena menjadi dependency langsung bagi W5 `detail_permintaan`, alur status `barang` pada W6, dan data contoh W11.
-- W8 (angka dashboard) dan W12 (README) juga belum selesai; keduanya tidak menunggu W4.
-- W10 untuk KTP/KTM dan selfie tidak menunggu W4; fitur itu bisa dikerjakan di atas tabel `permintaan` yang sudah ada.
+- `Checklist W8` (ringkasan angka sesuai peran) dan `Checklist W4` (dua data master dengan CRUD + Form Request) sudah terpenuhi di branch `devs/hideokojima` dan terverifikasi lewat 129 test hijau (654 assertions) pada scope non-`LaporanTest`, Pint, serta `npm run build`.
+- Kolom `barang.foto` sementara opsional berupa path teks sampai modul unggah berkas W10 (Ibnu) menggantinya dengan unggahan file ke disk `public`.
+- Ringkasan `dimusnahkanTahunIni` dan `riwayatDiambilTerbaru` di `DashboardSummaryService` masih memakai `barang.created_at` dan `permintaan` berstatus `diambil` sampai tabel `riwayat_pengambilan` dan alur pemusnahan W6 penuh (Dean) dibuat (`TODO` sudah dicatat di kode).
+- W4 akan membuka blokir bagi W5 `detail_permintaan` (Atika), alur status `barang` & `riwayat_pengambilan` W6 (Dean), dan data contoh W11 setelah perubahan di-commit dan di-merge ke `dev`.
+- W10 untuk KTP/KTM dan selfie tetap bisa dikerjakan paralel oleh Ibnu di atas tabel `permintaan` yang sudah ada.
 
 ---
 
@@ -143,11 +144,11 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 | W1 | Login dan logout | Anggota 2 (Ratu) | **Selesai** | Email/username + password hash, logout, ubah kata sandi, pengujian |
 | W2 | Tiga peran pengguna | Anggota 2 (Ratu) | **Sebagian/ambigu** | 3 aktor di desain final; baru 2 peran berakun + Pengunjung tanpa akun/menu |
 | W3 | Kelola pengguna | Anggota 2 (Ratu) | **Selesai** | Tambah, edit, nonaktifkan, tentukan peran |
-| W4 | Dua data master | Anggota 5 (Hideo) | **Belum** | `kategori` dan `barang` belum ada, termasuk CRUD + Form Request |
+| W4 | Dua data master | Anggota 5 (Hideo) | **Selesai (`devs/hideokojima`)** | CRUD `kategori` & `barang`, migration, model, Form Request, test (menunggu commit & merge ke `dev`) |
 | W5 | Satu transaksi berelasi | Anggota 1 (Atika) | **Sebagian (fondasi)** | Header `permintaan` ada; relasi ke data master dan `detail_permintaan` belum |
 | W6 | Status alur | Anggota 4 (Dean) | **Selesai (minimum)** | Alur `permintaan` bertahap + route `role:admin`; alur `barang`/riwayat belum |
 | W7 | Pencarian, filter, paginasi | Anggota 1 (Atika) | **Selesai** | Pencarian, filter status/tanggal, paginasi; route masih perlu auth/role |
-| W8 | Dashboard per peran | Anggota 5 (Hideo) | **Belum memenuhi** | Kerangka dashboard ada; angka ringkasan per peran belum dihitung |
+| W8 | Dashboard per peran | Anggota 5 (Hideo) | **Selesai (`devs/hideokojima`)** | Angka nyata transaksi, master, dan akun pada dashboard Admin & Pengawas (menunggu commit & merge ke `dev`) |
 | W9 | Laporan | Anggota 3 (Ibnu) | **Selesai** | Rekap periode + PDF + Excel; lingkup data masih `permintaan` |
 | W10 | Unggah berkas | Anggota 3 (Ibnu) | **Belum** | Belum ada alur unggah/validasi; kolom path sudah ada |
 | W11 | Data contoh | Anggota 4 (Dean) | **Sebagian** | 30 transaksi ada; 3 akun belum satu per peran; kategori/barang belum |
@@ -157,14 +158,15 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 
 ## 5. Dependency dan Risiko yang Perlu Diputuskan
 
-1. **W4 adalah blocker utama.** Tanpa `kategori` dan `barang`, W5 `detail_permintaan`, alur status `barang` pada W6, dan data contoh W11 belum bisa dilengkapi.
+1. **W4 sudah siap di `devs/hideokojima`, perlu segera di-commit & di-merge ke `dev`.** Begitu masuk `dev`, Atika dapat melengkapi W5 `detail_permintaan`, Dean dapat menyambungkan status `barang` + `riwayat_pengambilan` (W6) dan seeder W11, serta Ibnu dapat menambahkan unggah foto barang (W10).
 2. **W10 tidak diblokir W4 untuk unggah KTP/KTM dan selfie.** Kolom `foto_identitas`/`foto_selfie` sudah ada di `permintaan`; yang membutuhkan W4 adalah unggah foto barang di modul master.
-3. **Celah keamanan route `/admin/permintaan`.** Route W7 masih di luar middleware `auth` dan `role:admin`; siapa pun yang mengetik URL bisa membuka halaman. Perlu dipindahkan ke grup admin.
+3. **Celah keamanan route `/admin/permintaan`.** Route W7 masih di luar middleware `auth` dan `role:admin`; siapa pun yang mengetik URL bisa membuka halaman. Perlu dipindahkan ke grup admin dan `PermintaanIndexTest` disesuaikan memakai `actingAs` Admin.
 4. **Perbedaan jumlah peran dan akun.** `Checklist W2` meminta 3 peran; `Checklist W11` meminta 3 akun satu per peran. Desain final hanya memberi akun ke Admin dan Pengawas. Perlu keputusan tim dan konfirmasi dosen.
-5. **W8 belum selesai.** Dashboard/menu yang ada adalah kerangka W2-B; angka ringkasan per peran (transaksi hari ini/per status) belum dihitung. Jangan mencatat W8 sebagai selesai.
+5. **W8 sudah selesai di `devs/hideokojima`.** Angka ringkasan nyata Admin dan Pengawas telah diimplementasikan melalui `DashboardSummaryService` dan terverifikasi `DashboardSummaryTest`; perlu di-merge ke `dev` bersama W4.
 6. **W11 belum lengkap.** 30 transaksi dan 3 akun sudah ada, tetapi akun belum satu per peran, dan seeder kategori/barang belum ada.
 7. **Sesi akun nonaktif.** Login baru sudah ditolak, tetapi sesi yang sedang berjalan belum diputus paksa karena `EnsureUserIsActive` belum dibuat.
 8. **W12 belum memenuhi.** `README.md` masih bawaan Laravel; belum ada cara instalasi proyek dan daftar akun uji seperti yang diminta checklist.
+9. **Regresi pra-eksisting pada `LaporanTest` (5 test gagal pada `dev` `4d2dfe8`).** `resources/views/pengawas/laporan/index.blade.php` melempar `TypeError: Cannot access offset of type App\Enums\StatusPermintaan on array` akibat cast enum `StatusPermintaan` dari PR #5 (Dean) bertemu lookup array status dari PR #4 (Ibnu), serta `maatwebsite/excel` perlu `composer install` lokal di lingkungan Linux. Perlu diperbaiki oleh Maintainer/Ibnu/Dean sebelum merge final ke `main`.
 
 ---
 
@@ -177,6 +179,7 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 | 27 Nov 2026 | Dean menyelesaikan W6 (minimum) dan W11 (sebagian); Ibnu menyelesaikan W9 |
 | 27 Nov 2026 | PR #1 (Atika) di-merge; Ratu diintegrasikan lewat `960031e` dan PR #3; PR #4 (Ibnu) dan PR #5 (Dean) di-merge |
 | 27 Nov 2026 | `dev` berada di `4d2dfe8`; `devs/hideokojima` disinkronkan ke titik yang sama |
+| 27 Nov 2026 | Hideo menyelesaikan W4 (`kategori` & `barang`) dan W8 (dashboard angka nyata Admin & Pengawas) di working tree `devs/hideokojima` |
 
 ---
 
@@ -190,12 +193,12 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 | `Alur dan Fitur Sistem.pdf` | Alur bisnis | Versi lama: hanya Admin yang berakun; Pengawas ditiadakan |
 | `Laporan Progres Minggu 3 (Final).pdf` + `Diagram Use Case (Final).pdf` | Desain final peran dan use case | 3 aktor: Pengunjung, Admin, Pengawas; 20 use case |
 | `Progres 5.pdf` + mockup | Desain UI final | Dashboard Admin/Pengawas, menu per peran, form dan tabel |
-| `README.md` + kode `dev` | Kondisi implementasi | README masih default Laravel; kode belum punya W4/W10 |
+| `README.md` + kode aktual | Kondisi implementasi | README masih default Laravel; `devs/hideokojima` sudah memuat W4/W8, sedangkan W10 dan W5 detail masih belum |
 
 **Kontradiksi yang masih terbuka:**
 
 1. **Jumlah peran:** dokumen lama hanya Admin; desain final 3 aktor; checklist W2 meminta 3 peran dan W11 meminta 3 akun satu per peran. Implementasi memilih 2 peran berakun + Pengunjung tanpa akun.
-2. **Dashboard:** `Progres 5` dan mockup menampilkan dashboard dengan angka; kode baru menampilkan jumlah akun (Admin) dan placeholder (Pengawas).
+2. **Dashboard:** `Progres 5` dan mockup menampilkan dashboard dengan angka; di `devs/hideokojima` angka nyata sudah dihitung (`DashboardSummaryService`), sedangkan aksi persetujuan pemusnahan dan `riwayat_pengambilan` per barang masih menunggu W6 penuh.
 3. **README:** checklist W12 mewajibkan README berisi instalasi dan akun uji; README repo masih bawaan Laravel.
 4. **Struktur tabel:** ERD lama memakai tabel `admin` dan kolom `permintaan.nama`; implementasi memakai `users` dengan kolom `role` dan `permintaan.nama_pemohon`. Implementasi mengikuti struktur yang lebih baru, bukan ERD lama.
 
