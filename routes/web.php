@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\PermintaanController;
+use App\Http\Controllers\Admin\PermintaanStatusController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
@@ -45,6 +46,11 @@ Route::middleware(['auth', 'role:admin'])
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::patch('/users/{user}/status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
+
+        // Aksi perubahan status permintaan (W6); hanya Admin yang boleh memproses.
+        Route::patch('/permintaan/{permintaan}/setujui', [PermintaanStatusController::class, 'setujui'])->name('permintaan.setujui');
+        Route::patch('/permintaan/{permintaan}/tolak', [PermintaanStatusController::class, 'tolak'])->name('permintaan.tolak');
+        Route::patch('/permintaan/{permintaan}/diambil', [PermintaanStatusController::class, 'tandaiDiambil'])->name('permintaan.diambil');
     });
 
 // Area khusus Pengawas; peran lain mendapat 403 dan tamu diarahkan ke login.
