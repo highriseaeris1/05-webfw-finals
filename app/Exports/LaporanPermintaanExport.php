@@ -61,7 +61,7 @@ class LaporanPermintaanExport implements FromCollection, ShouldAutoSize, WithHea
             $permintaan->nama_pemohon,
             $permintaan->email,
             $permintaan->npm_nik,
-            ucfirst($permintaan->status),
+            $permintaan->status->label(),
             $permintaan->tanggal_pengajuan?->format('d/m/Y H:i') ?? '-',
             $permintaan->pemroses?->name ?? '-',
             $permintaan->tanggal_diproses?->format('d/m/Y H:i') ?? '-',

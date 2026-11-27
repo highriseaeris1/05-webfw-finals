@@ -4,20 +4,6 @@
 
 @section('content')
     @php
-        $statusLabel = [
-            'diajukan' => 'Diajukan',
-            'disetujui' => 'Disetujui',
-            'diambil' => 'Diambil',
-            'ditolak' => 'Ditolak',
-        ];
-
-        $statusVariant = [
-            'diajukan' => 'warning',
-            'disetujui' => 'info',
-            'diambil' => 'success',
-            'ditolak' => 'danger',
-        ];
-
         $periode = \Illuminate\Support\Carbon::parse($tanggalAwal)->format('d/m/Y')
             .' s.d. '.
             \Illuminate\Support\Carbon::parse($tanggalAkhir)->format('d/m/Y');
@@ -135,8 +121,8 @@
                                 {{ $item->tanggal_pengajuan?->format('d/m/Y H:i') ?? '-' }}
                             </td>
                             <td class="px-5 py-3.5">
-                                <x-badge :variant="$statusVariant[$item->status] ?? 'neutral'">
-                                    {{ $statusLabel[$item->status] ?? ucfirst($item->status) }}
+                                <x-badge :variant="$item->status->badgeVariant()">
+                                    {{ $item->status->label() }}
                                 </x-badge>
                             </td>
                             <td class="px-5 py-3.5 text-[#1B2430]">{{ $item->pemroses?->name ?? '-' }}</td>
