@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Pengawas\LaporanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -53,4 +54,7 @@ Route::middleware(['auth', 'role:pengawas'])
     ->name('pengawas.')
     ->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'pengawas'])->name('dashboard');
+        Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+        Route::get('/laporan/pdf', [LaporanController::class, 'pdf'])->name('laporan.pdf');
+        Route::get('/laporan/excel', [LaporanController::class, 'excel'])->name('laporan.excel');
     });
