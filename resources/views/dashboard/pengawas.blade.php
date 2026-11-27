@@ -44,10 +44,52 @@
                 <h2 class="text-base font-semibold text-[#1B2430]">Laporan rekap</h2>
                 <p class="mt-1 text-xs text-[#6B7685]">Pilih periode, lalu cetak atau ekspor.</p>
 
-                <div class="mt-4 rounded-[10px] border border-dashed border-[#DDE3EC] bg-[#F4F6FA] px-4 py-6 text-center">
-                    <p class="text-sm font-medium text-[#1B2430]">Belum tersedia</p>
-                    <p class="mt-1 text-xs text-[#6B7685]">Laporan rekap per periode akan dibuat pada tahap laporan.</p>
-                </div>
+                <form method="GET" action="{{ route('pengawas.laporan.index') }}" class="mt-4 flex flex-col gap-3">
+                    <div>
+                        <label for="laporan-tanggal-awal" class="block text-xs font-medium text-[#6B7685]">Tanggal awal</label>
+                        <input
+                            id="laporan-tanggal-awal"
+                            name="tanggal_awal"
+                            type="date"
+                            value="{{ now()->startOfMonth()->toDateString() }}"
+                            class="mt-1 block h-[40px] w-full rounded-[10px] border border-[#DDE3EC] bg-white px-3 text-sm text-[#1B2430] outline-none transition focus:border-[#1F3A5F] focus:ring-2 focus:ring-[#DDE3EC]"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="laporan-tanggal-akhir" class="block text-xs font-medium text-[#6B7685]">Tanggal akhir</label>
+                        <input
+                            id="laporan-tanggal-akhir"
+                            name="tanggal_akhir"
+                            type="date"
+                            value="{{ now()->toDateString() }}"
+                            class="mt-1 block h-[40px] w-full rounded-[10px] border border-[#DDE3EC] bg-white px-3 text-sm text-[#1B2430] outline-none transition focus:border-[#1F3A5F] focus:ring-2 focus:ring-[#DDE3EC]"
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="inline-flex h-[40px] items-center justify-center rounded-[10px] bg-[#1F3A5F] px-4 text-sm font-medium text-white transition hover:bg-[#2C4A73] focus:outline-none focus:ring-2 focus:ring-[#1F3A5F]"
+                    >
+                        Lihat laporan
+                    </button>
+
+                    <button
+                        type="submit"
+                        formaction="{{ route('pengawas.laporan.pdf') }}"
+                        class="inline-flex h-[40px] items-center justify-center rounded-[10px] border border-[#DDE3EC] bg-white px-4 text-sm font-medium text-[#1F3A5F] transition hover:border-[#1F3A5F] hover:bg-[#F4F6FA] focus:outline-none focus:ring-2 focus:ring-[#1F3A5F]"
+                    >
+                        Cetak PDF
+                    </button>
+
+                    <button
+                        type="submit"
+                        formaction="{{ route('pengawas.laporan.excel') }}"
+                        class="inline-flex h-[40px] items-center justify-center rounded-[10px] border border-[#DDE3EC] bg-white px-4 text-sm font-medium text-[#1F3A5F] transition hover:border-[#1F3A5F] hover:bg-[#F4F6FA] focus:outline-none focus:ring-2 focus:ring-[#1F3A5F]"
+                    >
+                        Ekspor Excel
+                    </button>
+                </form>
             </aside>
         </div>
     </div>

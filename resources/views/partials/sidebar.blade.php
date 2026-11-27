@@ -16,7 +16,7 @@
             ['label' => 'Dashboard', 'route' => 'pengawas.dashboard'],
             ['label' => 'Pemusnahan'],
             ['label' => 'Riwayat'],
-            ['label' => 'Laporan'],
+            ['label' => 'Laporan', 'route' => 'pengawas.laporan.index', 'active' => 'pengawas.laporan.*'],
         ];
 @endphp
 
