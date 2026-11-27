@@ -5,7 +5,7 @@ Dokumen ini memetakan kelima anggota tim ke tugas wajib masing-masing, lalu mera
 Sumber yang dipakai:
 
 1. **Prompt log** di `docs/prompt-logs/` (permintaan dan konteks yang ditulis anggota).
-2. **Riwayat commit** di seluruh branch dan **kode aktual** di `dev` pada `4d2dfe8` serta working tree `devs/hideokojima` (27 November 2026, setelah implementasi W4 dan W8 yang menunggu commit & merge ke `dev`).
+2. **Riwayat commit** di seluruh branch dan **kode aktual** di `dev` pada `a9266bd` (27 November 2026, setelah PR #7 yang membawa W4 dan W8 masuk `dev`).
 3. **`Pembagian Tugas.pdf`** untuk penanggung jawab W1–W12.
 4. **`Checklist Spesifikasi Proyek.pdf`** dan `Checklist Spesifikasi.xlsx` untuk syarat minimum.
 5. **`Use Case dan Struktur Data.pdf`** untuk ERD, relasi, dan transisi status.
@@ -39,7 +39,7 @@ Pemetaan ini tidak hanya menebak dari nama branch; ada bukti eksplisit di prompt
 | **Ratu** | Prompt log `20261126_144739_ratu_room-3f8a2c71.md` dan `20261126_160253_ratu_room-966a43be.md` berisi paket W1 (login, logout, ubah kata sandi), W2 (middleware peran, dashboard per peran), dan W3 (kelola pengguna). Paket itu persis milik Anggota 2 pada Pembagian Tugas. Commit author: `who-ratuu`. |
 | **Ibnu** | Prompt log `20261127_142756_ibnu_097926d8.md` meminta *"Implementasi fitur laporan"*; W9 adalah Laporan dan pemiliknya Anggota 3. Commit author: `Noot002`. |
 | **Dean** | Prompt log `20261125_140339_dean_room-38f08569.md` menyebut *"tugasku di sini sebagai anggota ke 4"* dan merencanakan W6 (status alur) + W11 (data contoh). Commit author: `Redwinter666`. |
-| **Hideo Kojima** | Satu-satunya anggota resmi yang tersisa setelah empat di atas terpetakan, sehingga memegang Anggota 5 (W4 + W8). Diperkuat oleh perannya sebagai maintainer: merge PR #1, #3, #4, #5 dan penyelesaian konflik rute. Commit author: `highriseaeris1` / `Hideo Kojima`. |
+| **Hideo Kojima** | Satu-satunya anggota resmi yang tersisa setelah empat di atas terpetakan, sehingga memegang Anggota 5 (W4 + W8). Diperkuat oleh perannya sebagai maintainer: merge PR #1, #3, #4, #5, #6, #7 dan penyelesaian konflik rute. Commit author: `highriseaeris1` / `Hideo Kojima`. |
 
 Alias author commit yang perlu diketahui saat menelusuri riwayat:
 
@@ -72,18 +72,18 @@ Alias author commit yang perlu diketahui saat menelusuri riwayat:
 
 ### Anggota 2 — Ratu (`devs/ratu`)
 
-**Tanggung jawab:** W1 login/logout, W2 tiga peran pengguna, W3 kelola pengguna.
+**Tanggung jawab:** W1 login/logout, W2 dua peran pengguna (Admin + Pengawas), W3 kelola pengguna.
 
 | Fitur | Progres | Bukti |
 | :--- | :--- | :--- |
 | W1 | **Selesai** — login via email/username, logout, ubah kata sandi, session regeneration, akun nonaktif ditolak, feature test lengkap. | `3062478`, `3ace82b`, `ec207a2`, `9a6ebeb`, `28cc110`, `e12327a` |
-| W2 | **Sebagian/ambigu** — middleware `role`, halaman 403, serta dashboard dan menu terpisah Admin/Pengawas sudah berjalan. Namun aplikasi baru punya **dua peran berakun** (Admin dan Pengawas); Pengunjung adalah aktor publik tanpa akun/menu. | `4cfc44b`, `42c2e66`, `be0df1b` |
+| W2 | **Sebagian (2 peran; tinggal proteksi route)** — middleware `role`, halaman 403, serta dashboard dan menu terpisah Admin/Pengawas sudah berjalan. Keputusan dosen menetapkan **dua peran berakun** (Admin dan Pengawas); Pengunjung adalah aktor publik tanpa akun/menu. Sisa satu celah: route `/admin/permintaan` masih di luar middleware. | `4cfc44b`, `42c2e66`, `be0df1b` |
 | W3 | **Selesai** — daftar + pencarian pengguna, tambah pengguna, edit pengguna, aktif/nonaktifkan, aturan minimal satu Admin aktif, dan pengujian akses. | `fd5997e`, `4e8482d`, `b6858a4`, `67c7ddc`, `e12327a` |
 
 **Catatan penting:**
-- Ada tiga versi peran di dokumen: `Alur dan Fitur Sistem`/`Use Case dan Struktur Data` menyebut **hanya Admin** yang berakun dan Pengawas ditiadakan; `Laporan Progres Minggu 3 (Final)`, `Diagram Use Case (Final)`, dan `Progres 5` memakai **3 aktor** (Pengunjung, Admin, Pengawas); `Checklist W2` meminta **3 peran** dengan menu berbeda dan rute dibatasi. Implementasi mengikuti desain final: Admin + Pengawas berakun, Pengunjung tanpa akun.
-- `Checklist W11` meminta **3 akun, satu per peran**. UserSeeder saat ini membuat 3 akun, tetapi komposisinya 2 Admin + 1 Pengawas; belum ada akun untuk peran ketiga (Pengguna/Pengunjung) — hal ini perlu diputuskan bersama karena bertentangan dengan desain final yang hanya memberi akun ke Admin dan Pengawas.
-- Dashboard dan menu per peran dibangun pada paket W2-B (`42c2e66`). Kerangka itu belum memenuhi W8 karena angka ringkasan yang diminta W8 belum ada (lihat bagian Hideo).
+- **Keputusan dosen:** W2 cukup **dua peran berakun** (Admin dan Pengawas); Pengunjung tetap aktor publik tanpa akun. Dengan keputusan ini, ketentuan "3 peran" pada checklist tidak lagi menjadi blocker W2. Sisa satu celah: route `/admin/permintaan` masih di luar middleware `auth + role:admin`.
+- `Checklist W11` meminta **3 akun**. Dengan keputusan dua peran, tiga akun ditafsirkan sebagai **2 Admin + 1 Pengawas**; `UserSeeder` sudah menyediakannya (satu akun nonaktif). Tidak perlu membuat peran ketiga.
+- Dashboard dan menu per peran dibangun pada paket W2-B (`42c2e66`). Angka ringkasan W8 sudah ditambahkan Hideo dan masuk `dev` melalui PR #7.
 - Middleware `EnsureUserIsActive` belum ada; akun yang dinonaktifkan saat sesi masih berjalan tetap bisa memakai sesi sampai logout.
 - Pekerjaan masuk `dev` melalui integrasi `960031e` dan PR #3 (`608a65b`).
 
@@ -109,11 +109,11 @@ Alias author commit yang perlu diketahui saat menelusuri riwayat:
 | Fitur | Progres | Bukti |
 | :--- | :--- | :--- |
 | W6 | **Selesai (minimum)** — enum `StatusPermintaan`, service transisi `permintaan` dengan `DB::transaction()` + `lockForUpdate()`, Form Request, controller, route aksi di grup `auth + role:admin`, badge/tombol aksi, dan pengujian. | `cbc8765` |
-| W11 | **Sebagian** — `PermintaanSeeder` berisi 30 transaksi (8 diajukan, 5 disetujui, 12 diambil, 5 ditolak) dan dipanggil dari `DatabaseSeeder`, plus `DataContohSeederTest`. `UserSeeder` sudah ada dan membuat 3 akun (2 Admin + 1 Pengawas, satu di antaranya nonaktif). | `217ded8` |
+| W11 | **Sebagian** — `PermintaanSeeder` berisi 30 transaksi (8 diajukan, 5 disetujui, 12 diambil, 5 ditolak) dan dipanggil dari `DatabaseSeeder`, plus `DataContohSeederTest`. `UserSeeder` sudah ada dan membuat 3 akun (2 Admin + 1 Pengawas, satu di antaranya nonaktif), sesuai keputusan dua peran. | `217ded8` |
 
 **Catatan penting:**
 - `Checklist W6` hanya meminta transaksi dengan status bertahap dan perubahan status oleh peran berhak. Alur `permintaan` (`diajukan → disetujui/ditolak → diambil`) sudah memenuhi itu. Transisi status `barang` dan pencatatan `riwayat_pengambilan` yang ada di desain belum tersambung karena tabelnya belum ada; itu kekurangan alur bisnis penuh, bukan kegagalan syarat minimum W6.
-- `Checklist W11` meminta **3 akun satu per peran** dan **30 data transaksi**. Jumlah 30 transaksi sudah terpenuhi. Tiga akun sudah ada, tetapi belum satu per peran (2 Admin + 1 Pengawas); seeder kategori dan barang juga belum ada karena W4 belum dikerjakan.
+- `Checklist W11` meminta **3 akun** dan **30 data transaksi**. Jumlah 30 transaksi dan 3 akun sudah terpenuhi; dengan keputusan dua peran, komposisi 2 Admin + 1 Pengawas adalah tafsiran yang disepakati. Seeder kategori dan barang belum ditambahkan meskipun W4 sudah masuk `dev`.
 - Pekerjaan masuk `dev` melalui PR #5 (`4d2dfe8`).
 
 ### Anggota 5 — Hideo Kojima (`devs/hideokojima`)
@@ -122,15 +122,15 @@ Alias author commit yang perlu diketahui saat menelusuri riwayat:
 
 | Area | Progres | Bukti |
 | :--- | :--- | :--- |
-| W4 | **Selesai (di `devs/hideokojima`, belum di-merge ke `dev`)** — migration, model, factory, 4 Form Request validasi Bahasa Indonesia, controller CRUD dengan pencarian/filter/paginasi/`lockForUpdate()`, route `admin.kategori.*` & `admin.barang.*`, menu sidebar aktif, 6 view Blade, serta feature test `KategoriManagementTest` dan `BarangManagementTest`. | Migration `2026_11_27_000001..000002`, `KategoriController`, `BarangController`, `KategoriManagementTest`, `BarangManagementTest` |
-| W8 | **Selesai (di `devs/hideokojima`, belum di-merge ke `dev`)** — `DashboardSummaryService` + `DashboardController` menghitung angka nyata dari `barang`, `kategori`, `permintaan`, dan `users` untuk dashboard Admin (4 metrik utama, transaksi hari ini/per status, master & akun) maupun Pengawas (4 metrik utama, ringkasan permintaan, kandidat pemusnahan > 3 tahun, riwayat diambil terbaru). | `DashboardSummaryService`, `DashboardController`, `dashboard/admin.blade.php`, `dashboard/pengawas.blade.php`, `DashboardSummaryTest` |
-| Maintainer | **Berjalan** — merge PR #1 (`3f2642e`), integrasi Ratu + penyelesaian konflik rute (`960031e`), merge PR #3 (`608a65b`), PR #4 (`29b467a`), PR #5 (`4d2dfe8`), serta bantuan konflik rute (`05b1739`). | Riwayat merge di `dev` |
+| W4 | **Selesai** — migration, model, factory, 4 Form Request validasi Bahasa Indonesia, controller CRUD dengan pencarian/filter/paginasi/`lockForUpdate()`, route `admin.kategori.*` & `admin.barang.*`, menu sidebar aktif, 6 view Blade, serta feature test `KategoriManagementTest` dan `BarangManagementTest`. Sudah masuk `dev` melalui PR #7. | Migration `2026_11_27_000001..000002`, `KategoriController`, `BarangController`, `KategoriManagementTest`, `BarangManagementTest` |
+| W8 | **Selesai** — `DashboardSummaryService` + `DashboardController` menghitung angka nyata dari `barang`, `kategori`, `permintaan`, dan `users` untuk dashboard Admin (4 metrik utama, transaksi hari ini/per status, master & akun) maupun Pengawas (4 metrik utama, ringkasan permintaan, kandidat pemusnahan > 3 tahun, riwayat diambil terbaru). Sudah masuk `dev` melalui PR #7. | `DashboardSummaryService`, `DashboardController`, `dashboard/admin.blade.php`, `dashboard/pengawas.blade.php`, `DashboardSummaryTest` |
+| Maintainer | **Berjalan** — merge PR #1 (`3f2642e`), integrasi Ratu + penyelesaian konflik rute (`960031e`), merge PR #3 (`608a65b`), PR #4 (`29b467a`), PR #5 (`4d2dfe8`), PR #6 (`1efca68`), PR #7 (`a9266bd`), serta bantuan konflik rute (`05b1739`). | Riwayat merge di `dev` |
 
 **Catatan penting:**
-- `Checklist W8` (ringkasan angka sesuai peran) dan `Checklist W4` (dua data master dengan CRUD + Form Request) sudah terpenuhi di branch `devs/hideokojima` dan terverifikasi lewat 129 test hijau (654 assertions) pada scope non-`LaporanTest`, Pint, serta `npm run build`.
+- `Checklist W8` (ringkasan angka sesuai peran) dan `Checklist W4` (dua data master dengan CRUD + Form Request) sudah terpenuhi dan masuk `dev` melalui PR #7; terverifikasi lewat 129 test hijau (654 assertions) pada scope non-`LaporanTest`, Pint, serta `npm run build`. Setelah regresi `LaporanTest` diperbaiki, seluruh suite mencatat 141 test hijau (696 assertions).
 - Kolom `barang.foto` sementara opsional berupa path teks sampai modul unggah berkas W10 (Ibnu) menggantinya dengan unggahan file ke disk `public`.
 - Ringkasan `dimusnahkanTahunIni` dan `riwayatDiambilTerbaru` di `DashboardSummaryService` masih memakai `barang.created_at` dan `permintaan` berstatus `diambil` sampai tabel `riwayat_pengambilan` dan alur pemusnahan W6 penuh (Dean) dibuat (`TODO` sudah dicatat di kode).
-- W4 akan membuka blokir bagi W5 `detail_permintaan` (Atika), alur status `barang` & `riwayat_pengambilan` W6 (Dean), dan data contoh W11 setelah perubahan di-commit dan di-merge ke `dev`.
+- W4 sudah masuk `dev`; ini membuka jalan bagi W5 `detail_permintaan` (Atika), alur status `barang` & `riwayat_pengambilan` W6 (Dean), dan seeder data contoh W11.
 - W10 untuk KTP/KTM dan selfie tetap bisa dikerjakan paralel oleh Ibnu di atas tabel `permintaan` yang sudah ada.
 
 ---
@@ -142,31 +142,31 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 | Kode | Fitur | Penanggung Jawab | Status | Keterangan |
 | :--- | :--- | :--- | :--- | :--- |
 | W1 | Login dan logout | Anggota 2 (Ratu) | **Selesai** | Email/username + password hash, logout, ubah kata sandi, pengujian |
-| W2 | Tiga peran pengguna | Anggota 2 (Ratu) | **Sebagian/ambigu** | 3 aktor di desain final; baru 2 peran berakun + Pengunjung tanpa akun/menu |
+| W2 | Dua peran pengguna (Admin + Pengawas) | Anggota 2 (Ratu) | **Sebagian (2 peran; tinggal proteksi route)** | Keputusan dosen: 2 peran berakun + Pengunjung tanpa akun; route `/admin/permintaan` masih di luar middleware |
 | W3 | Kelola pengguna | Anggota 2 (Ratu) | **Selesai** | Tambah, edit, nonaktifkan, tentukan peran |
-| W4 | Dua data master | Anggota 5 (Hideo) | **Selesai (`devs/hideokojima`)** | CRUD `kategori` & `barang`, migration, model, Form Request, test (menunggu commit & merge ke `dev`) |
+| W4 | Dua data master | Anggota 5 (Hideo) | **Selesai** | CRUD `kategori` & `barang`, migration, model, Form Request, test; sudah masuk `dev` melalui PR #7 |
 | W5 | Satu transaksi berelasi | Anggota 1 (Atika) | **Sebagian (fondasi)** | Header `permintaan` ada; relasi ke data master dan `detail_permintaan` belum |
 | W6 | Status alur | Anggota 4 (Dean) | **Selesai (minimum)** | Alur `permintaan` bertahap + route `role:admin`; alur `barang`/riwayat belum |
 | W7 | Pencarian, filter, paginasi | Anggota 1 (Atika) | **Selesai** | Pencarian, filter status/tanggal, paginasi; route masih perlu auth/role |
-| W8 | Dashboard per peran | Anggota 5 (Hideo) | **Selesai (`devs/hideokojima`)** | Angka nyata transaksi, master, dan akun pada dashboard Admin & Pengawas (menunggu commit & merge ke `dev`) |
-| W9 | Laporan | Anggota 3 (Ibnu) | **Selesai** | Rekap periode + PDF + Excel; lingkup data masih `permintaan` |
+| W8 | Dashboard per peran | Anggota 5 (Hideo) | **Selesai** | Angka nyata transaksi, master, dan akun pada dashboard Admin & Pengawas; sudah masuk `dev` melalui PR #7 |
+| W9 | Laporan | Anggota 3 (Ibnu) | **Selesai** | Rekap periode + PDF + Excel; lingkup data masih `permintaan`; tampilan/ekspor sudah menyesuaikan cast enum status |
 | W10 | Unggah berkas | Anggota 3 (Ibnu) | **Belum** | Belum ada alur unggah/validasi; kolom path sudah ada |
-| W11 | Data contoh | Anggota 4 (Dean) | **Sebagian** | 30 transaksi ada; 3 akun belum satu per peran; kategori/barang belum |
+| W11 | Data contoh | Anggota 4 (Dean) | **Sebagian** | 30 transaksi ada; 3 akun tersedia (2 Admin + 1 Pengawas) sesuai keputusan 2 peran; seeder kategori/barang belum |
 | W12 | Repositori dan README | Seluruh anggota | **Sebagian** | Git history bertahap; README masih default Laravel, belum memuat instalasi + akun uji |
 
 ---
 
 ## 5. Dependency dan Risiko yang Perlu Diputuskan
 
-1. **W4 sudah siap di `devs/hideokojima`, perlu segera di-commit & di-merge ke `dev`.** Begitu masuk `dev`, Atika dapat melengkapi W5 `detail_permintaan`, Dean dapat menyambungkan status `barang` + `riwayat_pengambilan` (W6) dan seeder W11, serta Ibnu dapat menambahkan unggah foto barang (W10).
+1. **W4 sudah masuk `dev` melalui PR #7 (`a9266bd`).** Ini membuka jalan bagi Atika melengkapi W5 `detail_permintaan`, Dean menyambungkan status `barang` + `riwayat_pengambilan` (W6) dan seeder W11, serta Ibnu menambahkan unggah foto barang (W10).
 2. **W10 tidak diblokir W4 untuk unggah KTP/KTM dan selfie.** Kolom `foto_identitas`/`foto_selfie` sudah ada di `permintaan`; yang membutuhkan W4 adalah unggah foto barang di modul master.
 3. **Celah keamanan route `/admin/permintaan`.** Route W7 masih di luar middleware `auth` dan `role:admin`; siapa pun yang mengetik URL bisa membuka halaman. Perlu dipindahkan ke grup admin dan `PermintaanIndexTest` disesuaikan memakai `actingAs` Admin.
-4. **Perbedaan jumlah peran dan akun.** `Checklist W2` meminta 3 peran; `Checklist W11` meminta 3 akun satu per peran. Desain final hanya memberi akun ke Admin dan Pengawas. Perlu keputusan tim dan konfirmasi dosen.
-5. **W8 sudah selesai di `devs/hideokojima`.** Angka ringkasan nyata Admin dan Pengawas telah diimplementasikan melalui `DashboardSummaryService` dan terverifikasi `DashboardSummaryTest`; perlu di-merge ke `dev` bersama W4.
-6. **W11 belum lengkap.** 30 transaksi dan 3 akun sudah ada, tetapi akun belum satu per peran, dan seeder kategori/barang belum ada.
+4. **Keputusan jumlah peran sudah diambil.** Dosen mengizinkan W2 dengan **2 peran berakun** (Admin + Pengawas); Pengunjung tanpa akun. W11 memakai 3 akun (2 Admin + 1 Pengawas); tidak perlu peran ketiga.
+5. **W8 sudah selesai dan masuk `dev` melalui PR #7.** Angka ringkasan nyata Admin dan Pengawas telah diimplementasikan melalui `DashboardSummaryService` dan terverifikasi `DashboardSummaryTest`.
+6. **W11 belum lengkap.** 30 transaksi dan 3 akun sudah ada (2 Admin + 1 Pengawas, sesuai keputusan dua peran); seeder kategori/barang belum ada meskipun W4 sudah masuk `dev`.
 7. **Sesi akun nonaktif.** Login baru sudah ditolak, tetapi sesi yang sedang berjalan belum diputus paksa karena `EnsureUserIsActive` belum dibuat.
 8. **W12 belum memenuhi.** `README.md` masih bawaan Laravel; belum ada cara instalasi proyek dan daftar akun uji seperti yang diminta checklist.
-9. **Regresi pra-eksisting pada `LaporanTest` (5 test gagal pada `dev` `4d2dfe8`).** `resources/views/pengawas/laporan/index.blade.php` melempar `TypeError: Cannot access offset of type App\Enums\StatusPermintaan on array` akibat cast enum `StatusPermintaan` dari PR #5 (Dean) bertemu lookup array status dari PR #4 (Ibnu), serta `maatwebsite/excel` perlu `composer install` lokal di lingkungan Linux. Perlu diperbaiki oleh Maintainer/Ibnu/Dean sebelum merge final ke `main`.
+9. **Regresi `LaporanTest` sudah diperbaiki.** View laporan memakai `$item->status->label()`/`badgeVariant()` dari enum, service ringkasan memakai query builder agar status tetap string, dan export Excel memakai `status->label()`. Seluruh suite kini hijau (141 test, 696 assertions).
 
 ---
 
@@ -179,7 +179,9 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 | 27 Nov 2026 | Dean menyelesaikan W6 (minimum) dan W11 (sebagian); Ibnu menyelesaikan W9 |
 | 27 Nov 2026 | PR #1 (Atika) di-merge; Ratu diintegrasikan lewat `960031e` dan PR #3; PR #4 (Ibnu) dan PR #5 (Dean) di-merge |
 | 27 Nov 2026 | `dev` berada di `4d2dfe8`; `devs/hideokojima` disinkronkan ke titik yang sama |
-| 27 Nov 2026 | Hideo menyelesaikan W4 (`kategori` & `barang`) dan W8 (dashboard angka nyata Admin & Pengawas) di working tree `devs/hideokojima` |
+| 27 Nov 2026 | Hideo menyelesaikan W4 (`kategori` & `barang`) dan W8 (dashboard angka nyata Admin & Pengawas) di `devs/hideokojima` |
+| 27 Nov 2026 | PR #7 (Hideo) di-merge: W4 dan W8 masuk `dev` (`a9266bd`); keputusan dosen: W2 cukup 2 peran (Admin + Pengawas) |
+| 27 Nov 2026 | Ibnu memperbaiki regresi `LaporanTest` akibat cast enum `StatusPermintaan`; view dan ekspor laporan kembali hijau |
 
 ---
 
@@ -193,13 +195,16 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 | `Alur dan Fitur Sistem.pdf` | Alur bisnis | Versi lama: hanya Admin yang berakun; Pengawas ditiadakan |
 | `Laporan Progres Minggu 3 (Final).pdf` + `Diagram Use Case (Final).pdf` | Desain final peran dan use case | 3 aktor: Pengunjung, Admin, Pengawas; 20 use case |
 | `Progres 5.pdf` + mockup | Desain UI final | Dashboard Admin/Pengawas, menu per peran, form dan tabel |
-| `README.md` + kode aktual | Kondisi implementasi | README masih default Laravel; `devs/hideokojima` sudah memuat W4/W8, sedangkan W10 dan W5 detail masih belum |
+| `README.md` + kode aktual | Kondisi implementasi | README masih default Laravel; `dev` sudah memuat W4/W8, sedangkan W10 dan W5 detail masih belum |
+
+**Keputusan yang sudah diambil:**
+
+- **Jumlah peran:** dosen mengizinkan W2 dengan **dua peran berakun** (Admin + Pengawas); Pengunjung tanpa akun. W11 tetap 3 akun dengan komposisi 2 Admin + 1 Pengawas; tidak perlu peran ketiga. Checklist W2 yang menyebut 3 peran disesuaikan dengan keputusan ini.
 
 **Kontradiksi yang masih terbuka:**
 
-1. **Jumlah peran:** dokumen lama hanya Admin; desain final 3 aktor; checklist W2 meminta 3 peran dan W11 meminta 3 akun satu per peran. Implementasi memilih 2 peran berakun + Pengunjung tanpa akun.
-2. **Dashboard:** `Progres 5` dan mockup menampilkan dashboard dengan angka; di `devs/hideokojima` angka nyata sudah dihitung (`DashboardSummaryService`), sedangkan aksi persetujuan pemusnahan dan `riwayat_pengambilan` per barang masih menunggu W6 penuh.
-3. **README:** checklist W12 mewajibkan README berisi instalasi dan akun uji; README repo masih bawaan Laravel.
-4. **Struktur tabel:** ERD lama memakai tabel `admin` dan kolom `permintaan.nama`; implementasi memakai `users` dengan kolom `role` dan `permintaan.nama_pemohon`. Implementasi mengikuti struktur yang lebih baru, bukan ERD lama.
+1. **Dashboard:** `Progres 5` dan mockup menampilkan dashboard dengan angka; angka nyata sudah dihitung (`DashboardSummaryService`) dan masuk `dev`, sedangkan aksi persetujuan pemusnahan dan `riwayat_pengambilan` per barang masih menunggu W6 penuh.
+2. **README:** checklist W12 mewajibkan README berisi instalasi dan akun uji; README repo masih bawaan Laravel.
+3. **Struktur tabel:** ERD lama memakai tabel `admin` dan kolom `permintaan.nama`; implementasi memakai `users` dengan kolom `role` dan `permintaan.nama_pemohon`. Implementasi mengikuti struktur yang lebih baru, bukan ERD lama.
 
 Dokumen ini bersifat pemetaan teknis, bukan penilaian individu. Fokusnya adalah memastikan setiap fitur punya pemilik yang jelas, statusnya tidak dilebih-lebihkan, dan dependency antaranggota terlihat sebelum pekerjaan berikutnya dimulai.
