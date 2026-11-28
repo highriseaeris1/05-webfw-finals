@@ -1,3 +1,4 @@
+{{-- TODO: Aktifkan menu Permintaan setelah route admin.permintaan.index masuk grup auth+role:admin; aktifkan Umur barang, Pemusnahan, dan Riwayat setelah modul W6 penuh tersedia. --}}
 @php
     $user = auth()->user();
     $isAdmin = $user->isAdmin();
@@ -6,8 +7,8 @@
         ? [
             ['label' => 'Dashboard', 'route' => 'admin.dashboard'],
             ['label' => 'Permintaan'],
-            ['label' => 'Barang'],
-            ['label' => 'Kategori'],
+            ['label' => 'Barang', 'route' => 'admin.barang.index', 'active' => 'admin.barang.*'],
+            ['label' => 'Kategori', 'route' => 'admin.kategori.index', 'active' => 'admin.kategori.*'],
             ['label' => 'Umur barang'],
             ['label' => 'Riwayat'],
             ['label' => 'Pengguna', 'route' => 'admin.users.index', 'active' => 'admin.users.*'],
@@ -16,7 +17,7 @@
             ['label' => 'Dashboard', 'route' => 'pengawas.dashboard'],
             ['label' => 'Pemusnahan'],
             ['label' => 'Riwayat'],
-            ['label' => 'Laporan'],
+            ['label' => 'Laporan', 'route' => 'pengawas.laporan.index', 'active' => 'pengawas.laporan.*'],
         ];
 @endphp
 
