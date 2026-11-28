@@ -5,7 +5,7 @@ Dokumen ini memetakan kelima anggota tim ke tugas wajib masing-masing, lalu mera
 Sumber yang dipakai:
 
 1. **Prompt log** di `docs/prompt-logs/` (permintaan dan konteks yang ditulis anggota).
-2. **Riwayat commit** di seluruh branch dan **kode aktual** di `dev` pada `a9266bd` (27 November 2026, setelah PR #7 yang membawa W4 dan W8 masuk `dev`).
+2. **Riwayat commit** di seluruh branch dan **kode aktual** di `dev` pada `54721eb` (27 November 2026, setelah PR #7 yang membawa W4/W8 dan PR #10 yang membawa perbaikan laporan serta keputusan dua peran).
 3. **`Pembagian Tugas.pdf`** untuk penanggung jawab W1–W12.
 4. **`Checklist Spesifikasi Proyek.pdf`** dan `Checklist Spesifikasi.xlsx` untuk syarat minimum.
 5. **`Use Case dan Struktur Data.pdf`** untuk ERD, relasi, dan transisi status.
@@ -67,7 +67,7 @@ Alias author commit yang perlu diketahui saat menelusuri riwayat:
 **Catatan penting:**
 - `Checklist Spesifikasi W5` meminta tabel transaksi yang **berelasi ke data master** dan **detail transaksi one-to-many bila ada**. Kondisi sekarang baru header transaksi + relasi ke `users`; belum memenuhi syarat minimum tersebut.
 - `detail_permintaan` dan pencarian nama barang belum dibuat karena tabel `barang` (milik Anggota 5) belum ada.
-- Route `/admin/permintaan` masih berada **di luar** grup `auth + role:admin` dan hanya diberi komentar TODO. Ini celah keamanan W2, bukan kekurangan W7.
+- Route `/admin/permintaan` masih berada **di luar** grup `auth + role:admin` dan hanya diberi komentar TODO. Ini celah **integrasi akses pada route W7**; perbaikannya ada di sisi route/test W7 (Atika/Maintainer), bukan pada implementasi W2 milik Ratu.
 - Pekerjaan sudah masuk `dev` melalui PR #1 (`3f2642e`).
 
 ### Anggota 2 — Ratu (`devs/ratu`)
@@ -77,11 +77,11 @@ Alias author commit yang perlu diketahui saat menelusuri riwayat:
 | Fitur | Progres | Bukti |
 | :--- | :--- | :--- |
 | W1 | **Selesai** — login via email/username, logout, ubah kata sandi, session regeneration, akun nonaktif ditolak, feature test lengkap. | `3062478`, `3ace82b`, `ec207a2`, `9a6ebeb`, `28cc110`, `e12327a` |
-| W2 | **Sebagian (2 peran; tinggal proteksi route)** — middleware `role`, halaman 403, serta dashboard dan menu terpisah Admin/Pengawas sudah berjalan. Keputusan dosen menetapkan **dua peran berakun** (Admin dan Pengawas); Pengunjung adalah aktor publik tanpa akun/menu. Sisa satu celah: route `/admin/permintaan` masih di luar middleware. | `4cfc44b`, `42c2e66`, `be0df1b` |
+| W2 | **Selesai (2 peran)** — middleware `role`, halaman 403, serta dashboard dan menu terpisah Admin/Pengawas sudah berjalan dan teruji. Keputusan dosen menetapkan **dua peran berakun** (Admin dan Pengawas); Pengunjung adalah aktor publik tanpa akun/menu. Route `/admin/permintaan` yang belum diproteksi adalah bagian integrasi W7 (Atika/Maintainer), bukan kekurangan implementasi W2. | `4cfc44b`, `42c2e66`, `be0df1b` |
 | W3 | **Selesai** — daftar + pencarian pengguna, tambah pengguna, edit pengguna, aktif/nonaktifkan, aturan minimal satu Admin aktif, dan pengujian akses. | `fd5997e`, `4e8482d`, `b6858a4`, `67c7ddc`, `e12327a` |
 
 **Catatan penting:**
-- **Keputusan dosen:** W2 cukup **dua peran berakun** (Admin dan Pengawas); Pengunjung tetap aktor publik tanpa akun. Dengan keputusan ini, ketentuan "3 peran" pada checklist tidak lagi menjadi blocker W2. Sisa satu celah: route `/admin/permintaan` masih di luar middleware `auth + role:admin`.
+- **Keputusan dosen:** W2 cukup **dua peran berakun** (Admin dan Pengawas); Pengunjung tetap aktor publik tanpa akun. Dengan keputusan ini, ketentuan "3 peran" pada checklist tidak lagi menjadi blocker W2. Implementasi W2 (middleware, menu, 403, dan tes) sudah selesai; route `/admin/permintaan` yang belum diproteksi adalah celah integrasi W7 (Atika/Maintainer).
 - `Checklist W11` meminta **3 akun**. Dengan keputusan dua peran, tiga akun ditafsirkan sebagai **2 Admin + 1 Pengawas**; `UserSeeder` sudah menyediakannya (satu akun nonaktif). Tidak perlu membuat peran ketiga.
 - Dashboard dan menu per peran dibangun pada paket W2-B (`42c2e66`). Angka ringkasan W8 sudah ditambahkan Hideo dan masuk `dev` melalui PR #7.
 - Middleware `EnsureUserIsActive` belum ada; akun yang dinonaktifkan saat sesi masih berjalan tetap bisa memakai sesi sampai logout.
@@ -142,12 +142,12 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 | Kode | Fitur | Penanggung Jawab | Status | Keterangan |
 | :--- | :--- | :--- | :--- | :--- |
 | W1 | Login dan logout | Anggota 2 (Ratu) | **Selesai** | Email/username + password hash, logout, ubah kata sandi, pengujian |
-| W2 | Dua peran pengguna (Admin + Pengawas) | Anggota 2 (Ratu) | **Sebagian (2 peran; tinggal proteksi route)** | Keputusan dosen: 2 peran berakun + Pengunjung tanpa akun; route `/admin/permintaan` masih di luar middleware |
+| W2 | Dua peran pengguna (Admin + Pengawas) | Anggota 2 (Ratu) | **Selesai (2 peran)** | Keputusan dosen: 2 peran berakun + Pengunjung tanpa akun; middleware, menu, 403, dan tes selesai. Route `/admin/permintaan` yang belum diproteksi adalah integrasi W7 (Atika/Maintainer) |
 | W3 | Kelola pengguna | Anggota 2 (Ratu) | **Selesai** | Tambah, edit, nonaktifkan, tentukan peran |
 | W4 | Dua data master | Anggota 5 (Hideo) | **Selesai** | CRUD `kategori` & `barang`, migration, model, Form Request, test; sudah masuk `dev` melalui PR #7 |
 | W5 | Satu transaksi berelasi | Anggota 1 (Atika) | **Sebagian (fondasi)** | Header `permintaan` ada; relasi ke data master dan `detail_permintaan` belum |
 | W6 | Status alur | Anggota 4 (Dean) | **Selesai (minimum)** | Alur `permintaan` bertahap + route `role:admin`; alur `barang`/riwayat belum |
-| W7 | Pencarian, filter, paginasi | Anggota 1 (Atika) | **Selesai** | Pencarian, filter status/tanggal, paginasi; route masih perlu auth/role |
+| W7 | Pencarian, filter, paginasi | Anggota 1 (Atika) | **Selesai** | Pencarian, filter status/tanggal, paginasi; integrasi route `/admin/permintaan` ke middleware admin masih menunggu (Atika/Maintainer) |
 | W8 | Dashboard per peran | Anggota 5 (Hideo) | **Selesai** | Angka nyata transaksi, master, dan akun pada dashboard Admin & Pengawas; sudah masuk `dev` melalui PR #7 |
 | W9 | Laporan | Anggota 3 (Ibnu) | **Selesai** | Rekap periode + PDF + Excel; lingkup data masih `permintaan`; tampilan/ekspor sudah menyesuaikan cast enum status |
 | W10 | Unggah berkas | Anggota 3 (Ibnu) | **Belum** | Belum ada alur unggah/validasi; kolom path sudah ada |
@@ -160,7 +160,7 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 
 1. **W4 sudah masuk `dev` melalui PR #7 (`a9266bd`).** Ini membuka jalan bagi Atika melengkapi W5 `detail_permintaan`, Dean menyambungkan status `barang` + `riwayat_pengambilan` (W6) dan seeder W11, serta Ibnu menambahkan unggah foto barang (W10).
 2. **W10 tidak diblokir W4 untuk unggah KTP/KTM dan selfie.** Kolom `foto_identitas`/`foto_selfie` sudah ada di `permintaan`; yang membutuhkan W4 adalah unggah foto barang di modul master.
-3. **Celah keamanan route `/admin/permintaan`.** Route W7 masih di luar middleware `auth` dan `role:admin`; siapa pun yang mengetik URL bisa membuka halaman. Perlu dipindahkan ke grup admin dan `PermintaanIndexTest` disesuaikan memakai `actingAs` Admin.
+3. **Celah integrasi route `/admin/permintaan` (W7).** Route W7 masih di luar middleware `auth` dan `role:admin`; siapa pun yang mengetik URL bisa membuka halaman. Ini bukan kekurangan implementasi W2 Ratu. Perlu dipindahkan ke grup admin dan `PermintaanIndexTest` disesuaikan memakai `actingAs` Admin; pemilik perbaikan: Atika/Maintainer.
 4. **Keputusan jumlah peran sudah diambil.** Dosen mengizinkan W2 dengan **2 peran berakun** (Admin + Pengawas); Pengunjung tanpa akun. W11 memakai 3 akun (2 Admin + 1 Pengawas); tidak perlu peran ketiga.
 5. **W8 sudah selesai dan masuk `dev` melalui PR #7.** Angka ringkasan nyata Admin dan Pengawas telah diimplementasikan melalui `DashboardSummaryService` dan terverifikasi `DashboardSummaryTest`.
 6. **W11 belum lengkap.** 30 transaksi dan 3 akun sudah ada (2 Admin + 1 Pengawas, sesuai keputusan dua peran); seeder kategori/barang belum ada meskipun W4 sudah masuk `dev`.
@@ -181,7 +181,8 @@ Status di bawah mengacu pada syarat minimum `Checklist Spesifikasi Proyek`, buka
 | 27 Nov 2026 | `dev` berada di `4d2dfe8`; `devs/hideokojima` disinkronkan ke titik yang sama |
 | 27 Nov 2026 | Hideo menyelesaikan W4 (`kategori` & `barang`) dan W8 (dashboard angka nyata Admin & Pengawas) di `devs/hideokojima` |
 | 27 Nov 2026 | PR #7 (Hideo) di-merge: W4 dan W8 masuk `dev` (`a9266bd`); keputusan dosen: W2 cukup 2 peran (Admin + Pengawas) |
-| 27 Nov 2026 | Ibnu memperbaiki regresi `LaporanTest` akibat cast enum `StatusPermintaan`; view dan ekspor laporan kembali hijau |
+| 27 Nov 2026 | Ibnu memperbaiki regresi `LaporanTest` akibat cast enum `StatusPermintaan`; view dan ekspor laporan kembali hijau (PR #10, `54721eb`) |
+| 28 Nov 2026 | Koreksi atribusi: W2 Ratu selesai (2 peran); celah proteksi route `/admin/permintaan` dipindah ke catatan integrasi W7 Atika/Maintainer |
 
 ---
 
